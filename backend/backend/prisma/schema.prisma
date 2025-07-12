@@ -76,7 +76,7 @@ model AnswerVote {
   type      VoteType
   createdAt DateTime @default(now())
 
-  @@unique([userId, answerId]) // ⛔ Prevents duplicate voting
+  @@unique([userId, answerId])
 }
 
 enum VoteType {
