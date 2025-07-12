@@ -250,13 +250,22 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
       <div className="create-post-modal max-w-4xl w-full max-h-[90vh] overflow-hidden rounded-2xl bg-white border-0">
         <div className="max-h-[90vh] overflow-y-auto">
           <div className="p-4 sm:p-6">
-            <div className="mb-4 sm:mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
-                Ask a Question
-              </h2>
-              <p className="text-gray-600 text-sm">
-                Get help from the community
-              </p>
+            <div className="mb-4 sm:mb-6 flex justify-between items-start">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+                  Ask a Question
+                </h2>
+                <p className="text-gray-600 text-sm">
+                  Get help from the community
+                </p>
+              </div>
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200 text-gray-500 hover:text-gray-700"
+                aria-label="Close modal"
+              >
+                <X className="h-6 w-6" />
+              </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">

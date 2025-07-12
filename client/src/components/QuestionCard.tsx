@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ThumbsUp, ThumbsDown } from "lucide-react";
 
 type PostCardProps = {
@@ -26,19 +27,29 @@ const PostCard: React.FC<PostCardProps> = ({
 }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
+  const navigate = useNavigate();
 
-  const handleLike = () => {
+  const handleLike = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setIsLiked(!isLiked);
     if (isDisliked) setIsDisliked(false);
   };
 
-  const handleDislike = () => {
+  const handleDislike = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setIsDisliked(!isDisliked);
     if (isLiked) setIsLiked(false);
   };
 
+  const handleCardClick = () => {
+    navigate(`/question/${id}`);
+  };
+
   return (
-    <div className="group bg-white rounded-3xl p-4 sm:p-6 shadow-[0_2px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-500 hover:-translate-y-1 border border-gray-50 hover:border-blue-100">
+    <div 
+      className="group bg-white rounded-3xl p-4 sm:p-6 shadow-[0_2px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-500 hover:-translate-y-1 border border-gray-50 hover:border-blue-100 cursor-pointer"
+      onClick={handleCardClick}
+    >
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center space-x-3">
