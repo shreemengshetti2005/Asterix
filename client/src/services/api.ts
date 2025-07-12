@@ -246,7 +246,7 @@ class ApiService {
   async deleteQuestion(questionId: number): Promise<{ success: boolean; message: string }> {
     return this.request<{ success: boolean; message: string }>(`/answer/delete`, {
       method: 'POST',
-      body: JSON.stringify({ questionId }),
+      body: JSON.stringify({ questionid: questionId }),
     });
   }
 
@@ -309,13 +309,14 @@ class ApiService {
 
   // Comment Methods
   async getComments(answerId: number): Promise<CommentsResponse> {
-    return this.request<CommentsResponse>(`/answer/comment/${answerId}`, {
-      method: 'GET',
+    return this.request<CommentsResponse>('/answer/recieve_comment', {
+      method: 'POST',
+      body: JSON.stringify({ answerId }),
     });
   }
 
   async addComment(answerId: number, data: CommentData): Promise<AddCommentResponse> {
-    return this.request<AddCommentResponse>('/answer/comments', {
+    return this.request<AddCommentResponse>('/answer/comment', {
       method: 'POST',
       body: JSON.stringify({ ...data, answerId }),
     });

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Plus, X, User } from 'lucide-react';
+import { MessageSquare, Plus, X, User, ChevronDown, ChevronUp } from 'lucide-react';
 import { apiService } from '../services/api';
 import type { Comment } from '../services/api';
 import RichTextEditor from './RichTextEditor';
@@ -13,21 +13,23 @@ interface CommentSectionProps {
 export const CommentSection: React.FC<CommentSectionProps> = ({ answerId, isLoggedIn, onCommentCountChange }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showComments, setShowComments] = useState(false);
   const [showAddComment, setShowAddComment] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [commentCount, setCommentCount] = useState(0);
 
-  useEffect(() => {
-    fetchComments();
-  }, [answerId]);
-
+  // Only fetch comments when they are shown
   const fetchComments = async () => {
+    if (!showComments) return;
+    
     try {
       setIsLoading(true);
       const response = await apiService.getComments(answerId);
       if (response.success) {
         const commentsList = response.comments || [];
         setComments(commentsList);
+        setCommentCount(commentsList.length);
         onCommentCountChange?.(commentsList.length);
       }
     } catch (error) {
@@ -36,6 +38,30 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ answerId, isLogg
       setIsLoading(false);
     }
   };
+
+  // Fetch comment count on mount
+  useEffect(() => {
+    const getCommentCount = async () => {
+      try {
+        const response = await apiService.getComments(answerId);
+        if (response.success) {
+          const count = response.comments?.length || 0;
+          setCommentCount(count);
+          onCommentCountChange?.(count);
+        }
+      } catch (error) {
+        console.error('Error fetching comment count:', error);
+      }
+    };
+    getCommentCount();
+  }, [answerId, onCommentCountChange]);
+
+  // Fetch comments when showComments changes
+  useEffect(() => {
+    if (showComments) {
+      fetchComments();
+    }
+  }, [showComments]);
 
   const handleAddComment = async () => {
     if (!newComment.trim() || !isLoggedIn) return;
@@ -46,6 +72,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ answerId, isLogg
       if (response.success) {
         const updatedComments = [response.comment, ...comments];
         setComments(updatedComments);
+        setCommentCount(updatedComments.length);
         onCommentCountChange?.(updatedComments.length);
         setNewComment('');
         setShowAddComment(false);
@@ -70,14 +97,22 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ answerId, isLogg
 
   return (
     <div className="mt-4 border-t border-gray-100 pt-4">
-      {/* Comments Header */}
+      {/* Comments Header with Toggle Button */}
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center space-x-2">
-          <MessageSquare className="h-4 w-4 text-gray-500" />
-          <span className="text-sm font-medium text-gray-700">
-            {comments.length} {comments.length === 1 ? 'Comment' : 'Comments'}
+        <button
+          onClick={() => setShowComments(!showComments)}
+          className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800 font-medium transition-colors"
+        >
+          <MessageSquare className="h-4 w-4" />
+          <span>
+            {commentCount} {commentCount === 1 ? 'Comment' : 'Comments'}
           </span>
-        </div>
+          {showComments ? (
+            <ChevronUp className="h-3 w-3" />
+          ) : (
+            <ChevronDown className="h-3 w-3" />
+          )}
+        </button>
         {isLoggedIn && (
           <button
             onClick={() => setShowAddComment(!showAddComment)}
@@ -124,46 +159,48 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ answerId, isLogg
         </div>
       )}
 
-      {/* Comments List */}
-      <div className="space-y-3">
-        {isLoading ? (
-          <div className="text-center py-4 text-gray-500">
-            <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-500 border-t-transparent mx-auto mb-2"></div>
-            Loading comments...
-          </div>
-        ) : comments.length === 0 ? (
-          <div className="text-center py-4 text-gray-500">
-            <MessageSquare className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-            <p className="text-sm">No comments yet</p>
-            {isLoggedIn && (
-              <p className="text-xs text-gray-400 mt-1">Be the first to comment!</p>
-            )}
-          </div>
-        ) : (
-          comments.map((comment) => (
-            <div key={comment.id} className="bg-gray-50 rounded-lg p-3">
-              <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                  {comment.user.username.charAt(0).toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="text-sm font-medium text-gray-900">
-                      {comment.user.username}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      {formatTimeAgo(comment.createdAt)}
-                    </span>
+      {/* Comments List - Only shown when showComments is true */}
+      {showComments && (
+        <div className="space-y-3">
+          {isLoading ? (
+            <div className="text-center py-4 text-gray-500">
+              <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-500 border-t-transparent mx-auto mb-2"></div>
+              Loading comments...
+            </div>
+          ) : comments.length === 0 ? (
+            <div className="text-center py-4 text-gray-500">
+              <MessageSquare className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+              <p className="text-sm">No comments yet</p>
+              {isLoggedIn && (
+                <p className="text-xs text-gray-400 mt-1">Be the first to comment!</p>
+              )}
+            </div>
+          ) : (
+            comments.map((comment) => (
+              <div key={comment.id} className="bg-gray-50 rounded-lg p-3">
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                    {comment.user.username.charAt(0).toUpperCase()}
                   </div>
-                  <div className="text-sm text-gray-700 leading-relaxed">
-                    {comment.content}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <span className="text-sm font-medium text-gray-900">
+                        {comment.user.username}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {formatTimeAgo(comment.createdAt)}
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-700 leading-relaxed">
+                      {comment.content}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))
-        )}
-      </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 }; 
