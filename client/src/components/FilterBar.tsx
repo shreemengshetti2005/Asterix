@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Search, Plus, ChevronDown } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function FilterBar() {
   return (
@@ -15,10 +16,12 @@ export function FilterBar() {
       <div className="container mx-auto px-4 py-4">
         <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
           {/* Ask New Question Button */}
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all duration-200 px-6 py-2.5 rounded-lg font-medium flex-shrink-0">
-            <Plus className="h-4 w-4 mr-2" />
-            Ask New Question
-          </Button>
+          <Link to="/ask">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all duration-200 px-6 py-2.5 rounded-lg font-medium flex-shrink-0">
+              <Plus className="h-4 w-4 mr-2" />
+              Ask New Question
+            </Button>
+          </Link>
 
           {/* Filter Dropdown */}
           <div className="flex-shrink-0">
