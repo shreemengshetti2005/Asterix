@@ -10,6 +10,7 @@ import Question_Router from "./routes/Question";
 import Answer_Router from "./routes/Answer.route";
 // import { ensureCollectionExists } from "./db/vectordb";
 import { createCollection } from "./db/vectordb";
+import aiRouter from "./routes/Ai.route";
 
 const PORT=process.env.PORT ||3000;
 const START_URL=process.env.START_URL || "/api/v1";
@@ -21,6 +22,7 @@ app.use(express.json())
 app.use(`${START_URL}/auth`,authRoute);
 app.use(`${START_URL}/question`,Question_Router);
 app.use(`${START_URL}/answer`,Answer_Router)
+app.use(`${START_URL}/ai`,aiRouter)
 app.listen(PORT,async()=>{
     await createCollection()
     //   await ensureCollectionExists()
