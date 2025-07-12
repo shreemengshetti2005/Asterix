@@ -125,6 +125,7 @@ exports.Prisma.UserScalarFieldEnum = {
   username: 'username',
   email: 'email',
   password: 'password',
+  isAdmin: 'isAdmin',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -143,6 +144,15 @@ exports.Prisma.QuestionScalarFieldEnum = {
 exports.Prisma.TagScalarFieldEnum = {
   id: 'id',
   name: 'name'
+};
+
+exports.Prisma.CommentScalarFieldEnum = {
+  id: 'id',
+  content: 'content',
+  userId: 'userId',
+  answerId: 'answerId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.AnswerScalarFieldEnum = {
@@ -196,6 +206,7 @@ exports.Prisma.ModelName = {
   User: 'User',
   Question: 'Question',
   Tag: 'Tag',
+  Comment: 'Comment',
   Answer: 'Answer',
   Notification: 'Notification',
   AnswerVote: 'AnswerVote'

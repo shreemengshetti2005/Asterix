@@ -1,49 +1,79 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ThumbsUp, ThumbsDown } from "lucide-react";
+import { apiService } from "../services/api";
+import type { Question } from "../services/api";
 
 type PostCardProps = {
-  id: string;
-  title: string;
-  description: string;
-  tags: string[];
-  author: string;
-  upvotes: number;
-  downvotes: number;
-  answers: number;
-  timeAgo: string;
+  question: Question;
 };
 
-const PostCard: React.FC<PostCardProps> = ({
-  id,
-  title,
-  description,
-  tags,
-  author,
-  upvotes,
-  downvotes,
-  answers,
-  timeAgo,
-}) => {
-  const [isLiked, setIsLiked] = useState(false);
-  const [isDisliked, setIsDisliked] = useState(false);
+const PostCard: React.FC<PostCardProps> = ({ question }) => {
+  const [localUpvotes, setLocalUpvotes] = useState(question.upvotes);
+  const [localDownvotes, setLocalDownvotes] = useState(question.downvotes);
+  const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
+  const [isVoting, setIsVoting] = useState(false);
   const navigate = useNavigate();
 
-  const handleLike = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsLiked(!isLiked);
-    if (isDisliked) setIsDisliked(false);
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return 'just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    return `${Math.floor(diffInSeconds / 86400)} days ago`;
   };
 
-  const handleDislike = (e: React.MouseEvent) => {
+  const handleUpvote = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsDisliked(!isDisliked);
-    if (isLiked) setIsLiked(false);
+    if (isVoting) return;
+
+    try {
+      setIsVoting(true);
+      const response = await apiService.upvoteQuestion(question.id);
+      
+      if (response.success) {
+        setLocalUpvotes(response.question.upvotes);
+        setLocalDownvotes(response.question.downvotes);
+        setUserVote('up');
+      }
+    } catch (error) {
+      console.error('Error upvoting question:', error);
+      // Handle error (could show a toast notification)
+    } finally {
+      setIsVoting(false);
+    }
+  };
+
+  const handleDownvote = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isVoting) return;
+
+    try {
+      setIsVoting(true);
+      const response = await apiService.downvoteQuestion(question.id);
+      
+      if (response.success) {
+        setLocalUpvotes(response.question.upvotes);
+        setLocalDownvotes(response.question.downvotes);
+        setUserVote('down');
+      }
+    } catch (error) {
+      console.error('Error downvoting question:', error);
+      // Handle error (could show a toast notification)
+    } finally {
+      setIsVoting(false);
+    }
   };
 
   const handleCardClick = () => {
-    navigate(`/question/${id}`);
+    navigate(`/question/${question.id}`);
   };
+
+  const authorName = question.askedBy?.username || question.user?.username || 'Unknown';
+  const answerCount = question.answers?.length || question.answerCount || 0;
 
   return (
     <div 
@@ -54,7 +84,7 @@ const PostCard: React.FC<PostCardProps> = ({
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg">
-              {author
+              {authorName
                 .split(" ")
                 .map((n) => n[0])
                 .join("")
@@ -62,67 +92,69 @@ const PostCard: React.FC<PostCardProps> = ({
             </div>
             <div className="flex items-center space-x-2 text-sm">
               <span className="font-semibold text-gray-900 hover:text-blue-600 cursor-pointer transition-colors duration-200">
-                {author}
+                {authorName}
               </span>
               <span className="text-gray-300 font-medium">•</span>
-              <span className="text-gray-500 font-medium">{timeAgo}</span>
+              <span className="text-gray-500 font-medium">{formatTimeAgo(question.createdAt)}</span>
             </div>
           </div>
-          {answers > 0 && (
+          {answerCount > 0 && (
             <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">
-              {answers} {answers === 1 ? "Answer" : "Answers"}
+              {answerCount} {answerCount === 1 ? "Answer" : "Answers"}
             </div>
           )}
         </div>
         <h2 className="text-2xl font-bold text-gray-900 leading-tight mb-4 cursor-pointer hover:text-blue-600 transition-colors duration-300 line-clamp-2 group-hover:text-blue-700">
-          {title}
+          {question.title}
         </h2>
         <p className="text-gray-600 text-base leading-relaxed mb-6 line-clamp-3 group-hover:text-gray-700 transition-colors duration-300">
-          {description}
+          {question.content}
         </p>
         <div className="flex items-center space-x-4 mb-5">
           <button
-            onClick={handleLike}
-            className={`flex items-center space-x-2 px-4 py-2.5 rounded-full transition-all duration-300 transform hover:scale-105 ${
-              isLiked
+            onClick={handleUpvote}
+            disabled={isVoting}
+            className={`flex items-center space-x-2 px-4 py-2.5 rounded-full transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${
+              userVote === 'up'
                 ? "bg-blue-500 text-white shadow-lg shadow-blue-200"
                 : "bg-gray-50 text-gray-600 hover:bg-blue-50 hover:text-blue-600"
             }`}
           >
             <ThumbsUp
               className={`h-4 w-4 transition-transform duration-300 ${
-                isLiked ? "scale-110" : ""
+                userVote === 'up' ? "scale-110" : ""
               }`}
             />
             <span className="font-semibold text-sm">
-              {isLiked ? upvotes + 1 : upvotes}
+              {localUpvotes}
             </span>
           </button>
           <button
-            onClick={handleDislike}
-            className={`flex items-center space-x-2 px-4 py-2.5 rounded-full transition-all duration-300 transform hover:scale-105 ${
-              isDisliked
+            onClick={handleDownvote}
+            disabled={isVoting}
+            className={`flex items-center space-x-2 px-4 py-2.5 rounded-full transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${
+              userVote === 'down'
                 ? "bg-red-500 text-white shadow-lg shadow-red-200"
                 : "bg-gray-50 text-gray-600 hover:bg-red-50 hover:text-red-600"
             }`}
           >
             <ThumbsDown
               className={`h-4 w-4 transition-transform duration-300 ${
-                isDisliked ? "scale-110" : ""
+                userVote === 'down' ? "scale-110" : ""
               }`}
             />
             <span className="font-semibold text-sm">
-              {isDisliked ? downvotes + 1 : downvotes}
+              {localDownvotes}
             </span>
           </button>
         </div>
         <div className="flex flex-wrap gap-2">
-          {tags.map((tag, index) => (
+          {question.tags?.map((tag, index) => (
             <span
               key={index}
               className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 text-xs font-semibold rounded-full border border-indigo-200 hover:from-indigo-100 hover:to-purple-100 hover:border-indigo-300 transition-all duration-300 cursor-pointer transform hover:scale-105 hover:shadow-md"
             >
-              #{tag}
+              #{tag.name}
             </span>
           ))}
         </div>
@@ -131,65 +163,4 @@ const PostCard: React.FC<PostCardProps> = ({
   );
 };
 
-// Move sample data outside component to prevent recreation on every render
-const samplePosts = [
-  {
-    id: "post-1",
-    title:
-      "How to join 2 columns in a data set to make a separate column in SQL",
-    description:
-      "I do not know the code for it as I am a beginner. As an example what I need to do is like there is a column 1 containing First name and column 2 consists of last name I want a column to combine both the names into a single column...",
-    tags: ["SQL", "Database", "Beginner"],
-    author: "John Doe",
-    upvotes: 15,
-    downvotes: 2,
-    answers: 5,
-    timeAgo: "2 hours ago",
-  },
-  {
-    id: "post-2",
-    title: "React useEffect cleanup function not working as expected",
-    description:
-      "I'm trying to clean up my useEffect but the cleanup function doesn't seem to be called when the component unmounts. I have a subscription that should be cancelled but it's still running...",
-    tags: ["React", "JavaScript", "Hooks"],
-    author: "Sarah Wilson",
-    upvotes: 23,
-    downvotes: 1,
-    answers: 8,
-    timeAgo: "4 hours ago",
-  },
-  {
-    id: "post-3",
-    title: "Best practices for API error handling in Node.js",
-    description:
-      "What are the industry standard approaches for handling errors in REST APIs? I want to make sure I'm following best practices for error responses, status codes, and error messaging...",
-    tags: ["Node.js", "API", "Error-Handling"],
-    author: "Mike Chen",
-    upvotes: 31,
-    downvotes: 0,
-    answers: 12,
-    timeAgo: "1 day ago",
-  },
-];
-
-const PostCardDemo = () => {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {(() => {
-          console.log("Rendering PostCardDemo...");
-          console.log("Sample posts:", samplePosts);
-          return null;
-        })()}
-        {samplePosts.map((post) => (
-          <PostCard key={post.id} {...post} />
-        ))}
-      </div>
-      <div className="text-center text-gray-500">
-        <p className="text-sm">No more posts to show</p>
-      </div>
-    </div>
-  );
-};
-
-export default PostCardDemo;
+export default PostCard;

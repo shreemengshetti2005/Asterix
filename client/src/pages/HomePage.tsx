@@ -1,18 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "../components/Header";
 import { FilterBar } from "../components/FilterBar";
 import PostCard from "../components/QuestionCard";
 import { Pagination } from "../components/Pagination";
-import { mockQuestions } from "../data/mockQuestions";
+import { apiService } from "../services/api";
+import type { Question } from "../services/api";
 
 function HomePage() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const questionsPerPage = 5;
-  const totalPages = Math.ceil(mockQuestions.length / questionsPerPage);
 
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        setIsLoading(true);
+        const response = await apiService.getFilteredQuestions('newest');
+        setQuestions(response.questions || []);
+      } catch (error) {
+        console.error('Error fetching questions:', error);
+        setError('Failed to fetch questions');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchQuestions();
+  }, []);
+
+  const handleQuestionsUpdate = (newQuestions: Question[]) => {
+    setQuestions(newQuestions);
+    setCurrentPage(1); // Reset to first page when filtering/searching
+    setError(null);
+  };
+
+  const handleSearch = (query: string) => {
+    // Search functionality is handled in FilterBar
+    console.log('Search query:', query);
+  };
+
+  const handleFilterChange = (filter: string) => {
+    // Filter functionality is handled in FilterBar
+    console.log('Filter changed to:', filter);
+  };
+
+  const totalPages = Math.ceil(questions.length / questionsPerPage);
   const startIndex = (currentPage - 1) * questionsPerPage;
   const endIndex = startIndex + questionsPerPage;
-  const currentQuestions = mockQuestions.slice(startIndex, endIndex);
+  const currentQuestions = questions.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -22,18 +59,49 @@ function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <FilterBar />
+      <FilterBar 
+        onSearch={handleSearch}
+        onFilterChange={handleFilterChange}
+        onQuestionsUpdate={handleQuestionsUpdate}
+        setIsLoading={setIsLoading}
+      />
 
-      
-        <div className="space-y-6">
-          <PostCard />
-        </div>
+      <main className="container px-4 py-8">
+        {isLoading ? (
+          <div className="text-center py-8">
+            <p className="text-gray-600">Loading questions...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-8">
+            <p className="text-red-600">{error}</p>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-6">
+              {currentQuestions.length > 0 ? (
+                currentQuestions.map((question) => (
+                  <PostCard
+                    key={question.id}
+                    question={question}
+                  />
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-600">No questions found.</p>
+                </div>
+              )}
+            </div>
 
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            )}
+          </>
+        )}
+      </main>
    
 
       <footer className="border-t bg-muted/30 py-6 mt-12">

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { 
   ThumbsUp, 
@@ -18,173 +18,205 @@ import {
   ExternalLink,
   TrendingUp,
   Clock,
-  MessageCircle
+  MessageCircle,
+  Eye,
+  Edit3
 } from 'lucide-react';
 import { Header } from './Header';
-
-interface Answer {
-  id: number;
-  content: string;
-  codeExample?: string;
-  votes: number;
-  author: string;
-  authorColor: string;
-  timestamp: string;
-  isExpert?: boolean;
-  isVerified?: boolean;
-}
+import { apiService } from '../services/api';
+import type { Question, Answer as ApiAnswer } from '../services/api';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import RichTextEditor from './RichTextEditor';
+import { CommentSection } from './CommentSection';
+import { useAuth } from '../context/authContext';
 
 function Temp() {
   const { id } = useParams<{ id: string }>();
-  const [questionVotes, setQuestionVotes] = useState(5);
+  const { user } = useAuth();
+  const [question, setQuestion] = useState<Question | null>(null);
+  const [apiAnswers, setApiAnswers] = useState<ApiAnswer[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [questionVotes, setQuestionVotes] = useState(0);
   const [userVote, setUserVote] = useState<{ [key: string]: 'up' | 'down' | null }>({});
   const [answerText, setAnswerText] = useState('');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'most-upvoted' | 'most-downvoted'>('newest');
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [showAllAnswers, setShowAllAnswers] = useState(false);
+  const [answerEditorMode, setAnswerEditorMode] = useState<'write' | 'preview'>('write');
+  const [commentCounts, setCommentCounts] = useState<{ [key: number]: number }>({});
   const ANSWERS_TO_SHOW = 2;
+  
+  // Add ref for the answer textarea
+  const answerTextareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const [answers, setAnswers] = useState<Answer[]>([
-    {
-      id: 1,
-      content: "You can use the CONCAT function in SQL to combine columns:",
-      codeExample: "SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM users;",
-      votes: 3,
-      author: "SQLExpert",
-      authorColor: "bg-green-600",
-      timestamp: "1 hour ago",
-      isExpert: true,
-      isVerified: true
-    },
-    {
-      id: 2,
-      content: "Alternative approach using the pipe operator (works in some SQL dialects):",
-      codeExample: "SELECT first_name || ' ' || last_name AS full_name FROM users;",
-      votes: 1,
-      author: "DataGuru",
-      authorColor: "bg-purple-600",
-      timestamp: "30 minutes ago"
-    },
-    {
-      id: 3,
-      content: "For PostgreSQL, you can also use the CONCAT_WS function which handles NULL values better:",
-      codeExample: "SELECT CONCAT_WS(' ', first_name, last_name) AS full_name FROM users;",
-      votes: 2,
-      author: "PostgresPro",
-      authorColor: "bg-blue-600",
-      timestamp: "45 minutes ago"
-    },
-    {
-      id: 4,
-      content: "In Microsoft SQL Server, you can use the + operator for string concatenation:",
-      codeExample: "SELECT first_name + ' ' + last_name AS full_name FROM users;",
-      votes: 4,
-      author: "SQLServerDev",
-      authorColor: "bg-red-600",
-      timestamp: "2 hours ago"
-    },
-    {
-      id: 5,
-      content: "For Oracle databases, you can use the CONCAT function or the || operator:",
-      codeExample: "SELECT CONCAT(CONCAT(first_name, ' '), last_name) AS full_name FROM users;\n-- OR --\nSELECT first_name || ' ' || last_name AS full_name FROM users;",
-      votes: 0,
-      author: "OracleExpert",
-      authorColor: "bg-orange-600",
-      timestamp: "3 hours ago"
-    },
-    {
-      id: 6,
-      content: "Don't forget to handle NULL values properly when concatenating. Here's a safe approach:",
-      codeExample: "SELECT \n  CASE \n    WHEN first_name IS NULL AND last_name IS NULL THEN NULL\n    WHEN first_name IS NULL THEN last_name\n    WHEN last_name IS NULL THEN first_name\n    ELSE CONCAT(first_name, ' ', last_name)\n  END AS full_name\nFROM users;",
-      votes: 7,
-      author: "SafeCoder",
-      authorColor: "bg-indigo-600",
-      timestamp: "4 hours ago"
-    },
-    {
-      id: 7,
-      content: "For MySQL, you can also use the CONCAT_WS function which is very handy:",
-      codeExample: "SELECT CONCAT_WS(' ', first_name, middle_name, last_name) AS full_name FROM users;",
-      votes: 2,
-      author: "MySQLMaster",
-      authorColor: "bg-yellow-600",
-      timestamp: "5 hours ago"
-    },
-    {
-      id: 8,
-      content: "If you're working with SQLite, the || operator is your best friend:",
-      codeExample: "SELECT first_name || ' ' || last_name AS full_name FROM users;",
-      votes: 1,
-      author: "SQLiteFan",
-      authorColor: "bg-gray-600",
-      timestamp: "6 hours ago"
-    }
-  ]);
+  useEffect(() => {
+    const fetchQuestionData = async () => {
+      if (!id) return;
+      
+      try {
+        setIsLoading(true);
+        const answersResponse = await apiService.getAnswersByQuestionId(parseInt(id));
 
-  const handleVote = (type: 'question' | 'answer', id: string | number, direction: 'up' | 'down') => {
+        if (answersResponse.success) {
+          setQuestion(answersResponse.question);
+          setApiAnswers(answersResponse.answers || []);
+          setQuestionVotes(answersResponse.question.upvotes);
+        }
+      } catch (error) {
+        console.error('Error fetching question data:', error);
+        setError('Failed to load question');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchQuestionData();
+  }, [id]);
+
+  const handleVote = async (type: 'question' | 'answer', id: string | number, direction: 'up' | 'down') => {
     const key = type === 'question' ? 'question' : `answer-${id}`;
     const currentVote = userVote[key];
     
-    if (type === 'question') {
-      if (currentVote === direction) {
-        setQuestionVotes(prev => prev + (direction === 'up' ? -1 : 1));
-        setUserVote(prev => ({ ...prev, [key]: null }));
-      } else if (currentVote === null) {
-        setQuestionVotes(prev => prev + (direction === 'up' ? 1 : -1));
-        setUserVote(prev => ({ ...prev, [key]: direction }));
-      } else {
-        setQuestionVotes(prev => prev + (direction === 'up' ? 2 : -2));
-        setUserVote(prev => ({ ...prev, [key]: direction }));
+    try {
+      if (type === 'question' && question) {
+        if (direction === 'up') {
+          const response = await apiService.upvoteQuestion(question.id);
+          if (response.success) {
+            setQuestionVotes(response.question.upvotes);
+            setUserVote(prev => ({ ...prev, [key]: direction }));
+          }
+        } else {
+          const response = await apiService.downvoteQuestion(question.id);
+          if (response.success) {
+            setQuestionVotes(response.question.upvotes);
+            setUserVote(prev => ({ ...prev, [key]: direction }));
+          }
+        }
+      } else if (type === 'answer') {
+        const answerId = id as number;
+        if (direction === 'up') {
+          const response = await apiService.upvoteAnswer(answerId);
+          if (response.success) {
+            // Update the answer votes in the local state
+            setApiAnswers(prev => prev.map(answer => 
+              answer.id === answerId 
+                ? { ...answer, upvotes: answer.upvotes + 1 }
+                : answer
+            ));
+            setUserVote(prev => ({ ...prev, [key]: direction }));
+          } else if (response.error) {
+            console.log('Vote error:', response.error);
+            // You could show a toast notification here
+            alert(response.error);
+          }
+        } else {
+          const response = await apiService.downvoteAnswer(answerId);
+          if (response.success) {
+            // Update the answer votes in the local state
+            setApiAnswers(prev => prev.map(answer => 
+              answer.id === answerId 
+                ? { ...answer, downvotes: answer.downvotes + 1 }
+                : answer
+            ));
+            setUserVote(prev => ({ ...prev, [key]: direction }));
+          } else if (response.error) {
+            console.log('Vote error:', response.error);
+            // You could show a toast notification here
+            alert(response.error);
+          }
+        }
       }
-    } else {
-      const answerId = id as number;
-      if (currentVote === direction) {
-        setAnswers(prev => prev.map(answer => 
-          answer.id === answerId 
-            ? { ...answer, votes: answer.votes + (direction === 'up' ? -1 : 1) }
-            : answer
-        ));
-        setUserVote(prev => ({ ...prev, [key]: null }));
-      } else if (currentVote === null) {
-        setAnswers(prev => prev.map(answer => 
-          answer.id === answerId 
-            ? { ...answer, votes: answer.votes + (direction === 'up' ? 1 : -1) }
-            : answer
-        ));
-        setUserVote(prev => ({ ...prev, [key]: direction }));
-      } else {
-        setAnswers(prev => prev.map(answer => 
-          answer.id === answerId 
-            ? { ...answer, votes: answer.votes + (direction === 'up' ? 2 : -2) }
-            : answer
-        ));
-        setUserVote(prev => ({ ...prev, [key]: direction }));
-      }
+    } catch (error) {
+      console.error('Error voting:', error);
+      // Handle network errors or other exceptions
+      alert('Failed to vote. Please try again.');
     }
   };
 
+  // Rich text formatting functions
+  const insertMarkdown = (syntax: string) => {
+    const textarea = answerTextareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = answerText.substring(start, end);
+
+    let newText = "";
+    switch (syntax) {
+      case "bold":
+        newText = `**${selectedText || "bold text"}**`;
+        break;
+      case "italic":
+        newText = `*${selectedText || "italic text"}*`;
+        break;
+      case "strikethrough":
+        newText = `~~${selectedText || "strikethrough text"}~~`;
+        break;
+      case "code":
+        newText = `\`${selectedText || "code"}\``;
+        break;
+      case "codeblock":
+        newText = `\`\`\`\n${selectedText || "code block"}\n\`\`\``;
+        break;
+      case "link":
+        newText = `[${selectedText || "link text"}](url)`;
+        break;
+      case "image":
+        newText = `![${selectedText || "alt text"}](image-url)`;
+        break;
+      case "list":
+        newText = `\n- ${selectedText || "list item"}`;
+        break;
+      case "orderedlist":
+        newText = `\n1. ${selectedText || "list item"}`;
+        break;
+      case "quote":
+        newText = `\n> ${selectedText || "quote text"}`;
+        break;
+      case "heading":
+        newText = `\n## ${selectedText || "heading text"}`;
+        break;
+      case "table":
+        newText = `\n| Header 1 | Header 2 |\n|----------|----------|\n| Cell 1   | Cell 2   |\n`;
+        break;
+    }
+
+    const before = answerText.substring(0, start);
+    const after = answerText.substring(end);
+    const newAnswerText = before + newText + after;
+
+    setAnswerText(newAnswerText);
+
+    // Focus back to textarea
+    setTimeout(() => {
+      textarea.focus();
+      const newCursorPos = start + newText.length;
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+    }, 0);
+  };
+
   const sortedAnswers = useMemo(() => {
-    const regularAnswers = answers.filter(answer => !answer.isExpert && !answer.isVerified);
-    
-    const sorted = [...regularAnswers].sort((a, b) => {
+    const sorted = [...apiAnswers].sort((a, b) => {
       switch (sortBy) {
         case 'newest':
-          return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         case 'oldest':
-          return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
         case 'most-upvoted':
-          return b.votes - a.votes;
+          return b.upvotes - a.upvotes;
         case 'most-downvoted':
-          return a.votes - b.votes;
+          return a.downvotes - b.downvotes;
         default:
           return 0;
       }
     });
     
     return sorted;
-  }, [answers, sortBy]);
-
-  const expertAnswers = answers.filter(answer => answer.isExpert || answer.isVerified);
+  }, [apiAnswers, sortBy]);
 
   const displayedAnswers = showAllAnswers ? sortedAnswers : sortedAnswers.slice(0, ANSWERS_TO_SHOW);
   const hasMoreAnswers = sortedAnswers.length > ANSWERS_TO_SHOW;
@@ -199,12 +231,23 @@ function Temp() {
     }
   };
 
-  const renderAnswer = (answer: Answer, isExpert = false) => (
-    <div key={answer.id} className={`group bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-200 ${isExpert ? '' : 'mb-4 last:mb-0'}`}>
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return 'just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    return `${Math.floor(diffInSeconds / 86400)} days ago`;
+  };
+
+  const renderAnswer = (answer: ApiAnswer) => (
+    <div key={answer.id} className="group bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-200 mb-4 last:mb-0">
       {/* Header Section - Author and Time */}
       <div className="flex items-center space-x-3 mb-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm">
-            {answer.author
+            {answer.answeredBy.username
               .split(" ")
               .map((n) => n[0])
               .join("")
@@ -212,48 +255,41 @@ function Temp() {
           </div>
           <div className="flex flex-col min-w-0 flex-1">
             <div className="flex items-center space-x-2 mb-1">
-              <span className="text-gray-900 font-semibold text-sm truncate">{answer.author}</span>
+              <span className="text-gray-900 font-semibold text-sm truncate">{answer.answeredBy.username}</span>
               <span className="text-gray-400">•</span>
-              <span className="text-gray-500 text-xs font-medium">{answer.timestamp}</span>
+              <span className="text-gray-500 text-xs font-medium">{formatTimeAgo(answer.createdAt)}</span>
             </div>
-            {(answer.isExpert || answer.isVerified) && (
-              <div className="flex items-center space-x-1.5">
-                {answer.isExpert && (
-                  <div className="flex items-center space-x-1 bg-yellow-100 px-1.5 py-0.5 rounded-full">
-                    <Award size={10} className="text-yellow-600" />
-                    <span className="text-xs text-yellow-700 font-medium">Expert</span>
-                  </div>
-                )}
-                {answer.isVerified && (
-                  <>
-                    <div className="flex items-center space-x-1 bg-green-100 px-1.5 py-0.5 rounded-full">
-                      <CheckCircle size={10} className="text-green-600" />
-                      <span className="text-xs text-green-700 font-medium">Verified</span>
-                    </div>
-                    <div className="flex items-center space-x-1 bg-blue-100 px-1.5 py-0.5 rounded-full">
-                      <CheckCircle size={10} className="text-blue-600" />
-                      <span className="text-xs text-blue-700 font-medium">Recommended Solution</span>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
           </div>
       </div>
 
       {/* Content */}
-      <div className="prose prose-gray max-w-none mb-3">
-        <p className="text-gray-600 text-sm leading-relaxed mb-3">{answer.content}</p>
-        {answer.codeExample && (
-          <pre className="bg-gray-50 p-3 rounded-lg border-l-3 border-blue-500 text-xs overflow-x-auto">
-            <code>{answer.codeExample}</code>
-          </pre>
-        )}
-        {isExpert && (
-          <p className="text-xs text-green-700 mt-2 bg-green-50 p-2 rounded-lg border border-green-200">
-            This answer combines the first and last name with a space in between, creating a clean full name format.
-          </p>
-        )}
+      <div className="text-gray-600 text-sm leading-relaxed mb-3">
+        <ReactMarkdown 
+          remarkPlugins={[remarkGfm]} 
+          rehypePlugins={[rehypeRaw]}
+          components={{
+            // Custom styling for markdown elements
+            p: ({children}) => <p className="mb-3">{children}</p>,
+            strong: ({children}) => <strong className="font-bold">{children}</strong>,
+            em: ({children}) => <em className="italic">{children}</em>,
+            del: ({children}) => <del className="line-through">{children}</del>,
+            code: ({children}) => <code className="bg-gray-200 px-1 py-0.5 rounded text-sm font-mono">{children}</code>,
+            pre: ({children}) => <pre className="bg-gray-200 p-3 rounded mb-3 overflow-x-auto">{children}</pre>,
+            a: ({children, href}) => <a href={href} className="text-blue-600 hover:underline">{children}</a>,
+            ul: ({children}) => <ul className="list-disc list-inside mb-3 space-y-1">{children}</ul>,
+            ol: ({children}) => <ol className="list-decimal list-inside mb-3 space-y-1">{children}</ol>,
+            li: ({children}) => <li>{children}</li>,
+            blockquote: ({children}) => <blockquote className="border-l-4 border-gray-300 pl-4 italic mb-3">{children}</blockquote>,
+            h1: ({children}) => <h1 className="text-2xl font-bold mb-3">{children}</h1>,
+            h2: ({children}) => <h2 className="text-xl font-bold mb-3">{children}</h2>,
+            h3: ({children}) => <h3 className="text-lg font-bold mb-3">{children}</h3>,
+            table: ({children}) => <table className="border-collapse border border-gray-300 mb-3 w-full">{children}</table>,
+            th: ({children}) => <th className="border border-gray-300 px-3 py-2 bg-gray-100 font-bold">{children}</th>,
+            td: ({children}) => <td className="border border-gray-300 px-3 py-2">{children}</td>,
+          }}
+        >
+          {answer.content}
+        </ReactMarkdown>
       </div>
 
       {/* Action Bar - Votes */}
@@ -267,7 +303,7 @@ function Temp() {
           }`}
         >
           <ThumbsUp className="h-3.5 w-3.5" />
-          <span className="text-xs font-semibold">{answer.votes}</span>
+          <span className="text-xs font-semibold">{answer.upvotes}</span>
         </button>
         
         <button
@@ -279,10 +315,50 @@ function Temp() {
           }`}
         >
           <ThumbsDown className="h-3.5 w-3.5" />
+          <span className="text-xs font-semibold">{answer.downvotes}</span>
         </button>
+
+        {/* Comment Count */}
+        <div className="flex items-center space-x-1.5 px-2.5 py-1.5 text-gray-500">
+          <MessageCircle className="h-3.5 w-3.5" />
+          <span className="text-xs font-medium">{commentCounts[answer.id] || 0}</span>
+        </div>
       </div>
+
+      {/* Comment Section */}
+      <CommentSection 
+        answerId={answer.id} 
+        isLoggedIn={!!user} 
+        onCommentCountChange={(count) => setCommentCounts(prev => ({ ...prev, [answer.id]: count }))}
+      />
     </div>
   );
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="text-center py-8">
+            <p className="text-gray-600">Loading question...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !question) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="text-center py-8">
+            <p className="text-red-600">{error || 'Question not found'}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -305,27 +381,31 @@ function Temp() {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md">
-                    U1
+                    {question.askedBy?.username
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase() || 'U'}
                   </div>
                   <div className="flex flex-col min-w-0 flex-1">
-                    <span className="text-gray-900 font-semibold text-sm truncate">user123</span>
+                    <span className="text-gray-900 font-semibold text-sm truncate">{question.askedBy?.username || 'Unknown'}</span>
                   </div>
                 </div>
                 
                 <div className="flex items-center space-x-1 text-gray-500 text-xs bg-gray-50 px-2 py-1 rounded-full flex-shrink-0">
                   <Clock className="h-3 w-3" />
-                  <span className="font-medium whitespace-nowrap">2 hours ago</span>
+                  <span className="font-medium whitespace-nowrap">{formatTimeAgo(question.createdAt)}</span>
                 </div>
               </div>
 
               {/* Title */}
               <h1 className="text-lg sm:text-xl font-bold text-gray-900 hover:text-blue-600 cursor-pointer mb-2 leading-tight transition-colors duration-200">
-                How to join 2 columns in a data set to make a separate column in SQL? (ID: {id})
+                {question.title}
               </h1>
 
               {/* Description */}
               <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-4">
-                I am working the code for it but I am a beginner. An example would be greatly appreciated. I need to combine 2 columns consisting of last name and first name as a column for combined name.
+                {question.content}
               </p>
 
               {/* Action Bar - Votes and Tags */}
@@ -358,24 +438,16 @@ function Temp() {
 
               {/* Tags Section */}
               <div className="flex flex-wrap gap-2">
-                {['SQL', 'database', 'beginner'].map((tag, index) => (
+                {question.tags?.map((tag, index) => (
                   <span
                     key={index}
                     className="inline-flex items-center px-2.5 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-200 hover:from-blue-100 hover:to-indigo-100 hover:border-blue-300 transition-all duration-200 cursor-pointer transform hover:scale-105"
                   >
-                    #{tag}
+                    #{tag.name}
                   </span>
                 ))}
               </div>
             </div>
-
-            {/* Expert and Verified Answer Section */}
-            {expertAnswers.length > 0 && (
-              <div className="mb-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">Expert & Verified Answer</h2>
-                {expertAnswers.map(answer => renderAnswer(answer, true))}
-              </div>
-            )}
 
             {/* Regular Answers Section */}
             <div className="group bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 transform hover:-translate-y-1">
@@ -386,14 +458,7 @@ function Temp() {
                 
                 {/* Sort Menu with Hamburger Icon */}
                 <div className="relative">
-                  <button
-                    onClick={() => setShowSortMenu(!showSortMenu)}
-                    className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors text-sm font-medium text-gray-700"
-                  >
-                    <Menu size={16} />
-                    <span>Sort by: {getSortLabel(sortBy)}</span>
-                    <ChevronDown size={16} className={`transform transition-transform ${showSortMenu ? 'rotate-180' : ''}`} />
-                  </button>
+                  
                   
                   {showSortMenu && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 z-10">
@@ -466,93 +531,39 @@ function Temp() {
             {/* Submit Your Answer */}
             <div className="group bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 transform hover:-translate-y-1 mt-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Submit Your Answer</h3>
-              
-              {/* Rich Text Editor Toolbar */}
-              <div className="border border-gray-300 rounded-xl">
-                <div className="flex items-center gap-1 p-2 border-b border-gray-300 bg-gray-50 rounded-t-xl">
-                  <button className="p-2 hover:bg-gray-200 rounded transition-colors">
-                    <Bold size={16} />
-                  </button>
-                  <button className="p-2 hover:bg-gray-200 rounded transition-colors">
-                    <Italic size={16} />
-                  </button>
-                  <button className="p-2 hover:bg-gray-200 rounded transition-colors">
-                    <Link size={16} />
-                  </button>
-                  <button className="p-2 hover:bg-gray-200 rounded transition-colors">
-                    <List size={16} />
-                  </button>
-                  <button className="p-2 hover:bg-gray-200 rounded transition-colors">
-                    <Code size={16} />
-                  </button>
-                  <button className="p-2 hover:bg-gray-200 rounded transition-colors">
-                    <Quote size={16} />
-                  </button>
-                </div>
-                
-                {/* Text Area */}
-                <textarea
-                  value={answerText}
-                  onChange={(e) => setAnswerText(e.target.value)}
-                  placeholder="Write your answer here..."
-                  className="w-full p-4 min-h-[200px] resize-none border-0 focus:outline-none focus:ring-0 rounded-b-xl"
-                />
-              </div>
-              
+              <RichTextEditor
+                value={answerText}
+                onChange={setAnswerText}
+                placeholder="Write your answer here..."
+              />
               <div className="flex justify-end mt-4">
-                <button className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-full hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105">
+                <button 
+                  onClick={async () => {
+                    if (!answerText.trim() || !id) return;
+                    try {
+                      const response = await apiService.submitAnswer(parseInt(id), {
+                        content: answerText
+                      });
+                      if (response.success) {
+                        setAnswerText('');
+                        // Refresh the answers
+                        const answersResponse = await apiService.getAnswersByQuestionId(parseInt(id));
+                        if (answersResponse.success) {
+                          setApiAnswers(answersResponse.answers || []);
+                        }
+                      }
+                    } catch (error) {
+                      console.error('Error submitting answer:', error);
+                    }
+                  }}
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-full hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
+                >
                   Submit Answer
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Enhanced Sidebar */}
-          <div className="lg:col-span-3">
-            {/* Enhanced Related Questions */}
-            <div className="group bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1">
-              <div className="flex items-center space-x-2 mb-5">
-                <div className="p-2 bg-blue-100 rounded-xl">
-                  <TrendingUp size={18} className="text-blue-600" />
-                </div>
-                <h3 className="text-lg font-bold text-blue-900">Related Questions</h3>
-              </div>
-              <div className="space-y-4">
-                {[
-                  { title: "How to concatenate strings in MySQL?", votes: 12, answers: 5 },
-                  { title: "SQL JOIN vs UNION differences", votes: 8, answers: 3 },
-                  { title: "Best practices for column naming", votes: 15, answers: 7 },
-                  { title: "Handling NULL values in SQL concatenation", votes: 6, answers: 2 }
-                ].map((question, index) => (
-                  <div key={index} className="group/item">
-                    <a href="#" className="block p-3 bg-white rounded-xl border border-blue-100 hover:border-blue-200 hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5">
-                      <div className="text-sm font-medium text-blue-700 group-hover/item:text-blue-800 mb-2 leading-relaxed">
-                        {question.title}
-                      </div>
-                      <div className="flex items-center justify-between text-xs text-blue-500">
-                        <div className="flex items-center space-x-3">
-                          <span className="flex items-center space-x-1">
-                            <ThumbsUp size={12} />
-                            <span>{question.votes}</span>
-                          </span>
-                          <span className="flex items-center space-x-1">
-                            <MessageCircle size={12} />
-                            <span>{question.answers}</span>
-                          </span>
-                        </div>
-                        <ExternalLink size={12} className="opacity-0 group-hover/item:opacity-100 transition-opacity" />
-                      </div>
-                    </a>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 pt-4 border-t border-blue-200">
-                <button className="w-full text-center text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors bg-white rounded-xl py-2 hover:bg-blue-50">
-                  show mo →
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

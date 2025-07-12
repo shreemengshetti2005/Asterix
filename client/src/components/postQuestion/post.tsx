@@ -19,6 +19,8 @@ import {
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
+import { apiService } from "../../services/api";
+import RichTextEditor from '../RichTextEditor';
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -144,77 +146,82 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
     }, 0);
   };
 
-  const convertToMarkdown = () => {
+  const convertToMarkdown = async () => {
     if (naturalLanguageInput.trim()) {
-      // Simple conversion - in a real app, you'd use AI to convert natural language to markdown
-      const converted = naturalLanguageInput
-        .split("\n\n")
-        .map((paragraph) => paragraph.trim())
-        .filter((p) => p)
-        .join("\n\n");
+      try {
+        const response = await apiService.convertToMarkdown({ text: naturalLanguageInput });
+        if (response.status === 200) {
+          setDescription(response.data);
+          setActiveTab("write");
+        }
+      } catch (error) {
+        console.error('Error converting to markdown:', error);
+        // Fallback to simple conversion
+        const converted = naturalLanguageInput
+          .split("\n\n")
+          .map((paragraph) => paragraph.trim())
+          .filter((p) => p)
+          .join("\n\n");
 
-      setDescription(converted);
-      setActiveTab("write");
+        setDescription(converted);
+        setActiveTab("write");
+      }
     }
   };
 
   const addTag = (tag: string) => {
-    if (tag && !tags.includes(tag)) {
-      setTags([...tags, tag]);
+    const trimmedTag = tag.trim().toLowerCase();
+    if (trimmedTag && !tags.includes(trimmedTag) && tags.length < 5) {
+      setTags([...tags, trimmedTag]);
     }
     setTagInput("");
     setShowTagSuggestions(false);
   };
 
-  const handleAIClassification = () => {
-    // Simulate AI classification based on title and description
-    const content = `${title} ${description}`.toLowerCase();
-    const suggestedTags = [];
+  const handleAIClassification = async () => {
+    try {
+      const content = `${title} ${description}`;
+      if (!content.trim()) return;
 
-    // Simple keyword matching - in a real app, this would use AI
-    if (
-      content.includes("how") ||
-      content.includes("help") ||
-      content.includes("question")
-    ) {
-      suggestedTags.push("beginner question");
-    }
-    if (
-      content.includes("code") ||
-      content.includes("programming") ||
-      content.includes("debug")
-    ) {
-      suggestedTags.push("technical help");
-    }
-    if (
-      content.includes("tutorial") ||
-      content.includes("learn") ||
-      content.includes("guide")
-    ) {
-      suggestedTags.push("how-to");
-    }
-    if (
-      content.includes("error") ||
-      content.includes("issue") ||
-      content.includes("problem")
-    ) {
-      suggestedTags.push("troubleshooting");
-    }
-    if (
-      content.includes("best") ||
-      content.includes("practice") ||
-      content.includes("recommend")
-    ) {
-      suggestedTags.push("best practices");
-    }
-    if (content.includes("review") || content.includes("feedback")) {
-      suggestedTags.push("code review");
-    }
+      const response = await apiService.getAITags({ text: content });
+      if (response.status === 200 && response.data) {
+        // Add suggested tags that aren't already present
+        const newTags = response.data.filter((tag) => !tags.includes(tag));
+        if (newTags.length > 0) {
+          const tagsToAdd = newTags.slice(0, 5 - tags.length); // Ensure we don't exceed 5 tags
+          setTags([...tags, ...tagsToAdd]);
+        }
+      }
+    } catch (error) {
+      console.error('Error getting AI tags:', error);
+      // Fallback to simple keyword matching
+      const content = `${title} ${description}`.toLowerCase();
+      const suggestedTags = [];
 
-    // Add suggested tags that aren't already present
-    const newTags = suggestedTags.filter((tag) => !tags.includes(tag));
-    if (newTags.length > 0) {
-      setTags([...tags, ...newTags.slice(0, 3)]); // Limit to 3 suggestions
+      if (content.includes("how") || content.includes("help") || content.includes("question")) {
+        suggestedTags.push("beginner question");
+      }
+      if (content.includes("code") || content.includes("programming") || content.includes("debug")) {
+        suggestedTags.push("technical help");
+      }
+      if (content.includes("tutorial") || content.includes("learn") || content.includes("guide")) {
+        suggestedTags.push("how-to");
+      }
+      if (content.includes("error") || content.includes("issue") || content.includes("problem")) {
+        suggestedTags.push("troubleshooting");
+      }
+      if (content.includes("best") || content.includes("practice") || content.includes("recommend")) {
+        suggestedTags.push("best practices");
+      }
+      if (content.includes("review") || content.includes("feedback")) {
+        suggestedTags.push("code review");
+      }
+
+      const newTags = suggestedTags.filter((tag) => !tags.includes(tag));
+      if (newTags.length > 0) {
+        const tagsToAdd = newTags.slice(0, 5 - tags.length);
+        setTags([...tags, ...tagsToAdd]);
+      }
     }
   };
 
@@ -225,7 +232,10 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
   const handleTagInputKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && tagInput.trim()) {
       e.preventDefault();
-      addTag(tagInput.trim());
+      addTag(tagInput);
+    } else if (e.key === "," && tagInput.trim()) {
+      e.preventDefault();
+      addTag(tagInput);
     } else if (e.key === "Backspace" && !tagInput && tags.length > 0) {
       removeTag(tags[tags.length - 1]);
     }
@@ -293,227 +303,11 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 <label className="text-sm font-semibold text-gray-700">
                   Question Details
                 </label>
-
-                <div className="space-y-4">
-                  <div className="grid w-full grid-cols-3 h-auto bg-gray-100 rounded-lg p-1">
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab("write")}
-                      className={`create-post-modal-tab flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm px-3 py-2 rounded-md transition-colors ${
-                        activeTab === "write"
-                          ? "bg-white text-gray-900 shadow-sm"
-                          : "text-gray-600 hover:text-gray-900"
-                      }`}
-                    >
-                      <Edit3 size={16} />
-                      Write
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab("natural")}
-                      className={`create-post-modal-tab flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm px-3 py-2 rounded-md transition-colors ${
-                        activeTab === "natural"
-                          ? "bg-white text-gray-900 shadow-sm"
-                          : "text-gray-600 hover:text-gray-900"
-                      }`}
-                    >
-                      <MessageSquare size={16} />
-                      Natural Language
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab("preview")}
-                      className={`create-post-modal-tab flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm px-3 py-2 rounded-md transition-colors ${
-                        activeTab === "preview"
-                          ? "bg-white text-gray-900 shadow-sm"
-                          : "text-gray-600 hover:text-gray-900"
-                      }`}
-                    >
-                      <Eye size={16} />
-                      Preview
-                    </button>
-                  </div>
-
-                  {activeTab === "write" && (
-                    <div className="space-y-0">
-                      <div className="border border-gray-300 rounded-xl overflow-hidden bg-white">
-                        {/* Markdown Toolbar */}
-                        <div className="create-post-modal-toolbar flex items-center gap-1 p-2 flex-wrap overflow-x-auto bg-gray-50 border-b border-gray-200">
-                          <button
-                            type="button"
-                            onClick={() => insertMarkdown("bold")}
-                            className="create-post-modal-toolbar-btn h-8 w-8 p-0 rounded hover:bg-gray-200 flex items-center justify-center"
-                            title="Bold"
-                          >
-                            <Bold size={16} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => insertMarkdown("italic")}
-                            className="create-post-modal-toolbar-btn h-8 w-8 p-0 rounded hover:bg-gray-200 flex items-center justify-center"
-                            title="Italic"
-                          >
-                            <Italic size={16} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => insertMarkdown("strikethrough")}
-                            className="create-post-modal-toolbar-btn h-8 w-8 p-0 rounded hover:bg-gray-200 flex items-center justify-center"
-                            title="Strikethrough"
-                          >
-                            <span className="text-sm font-bold">S̶</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => insertMarkdown("code")}
-                            className="create-post-modal-toolbar-btn h-8 w-8 p-0 rounded hover:bg-gray-200 flex items-center justify-center"
-                            title="Code"
-                          >
-                            <Code size={16} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => insertMarkdown("codeblock")}
-                            className="create-post-modal-toolbar-btn h-8 w-8 p-0 rounded hover:bg-gray-200 flex items-center justify-center"
-                            title="Code Block"
-                          >
-                            <span className="text-xs font-mono">{"{ }"}</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => insertMarkdown("link")}
-                            className="create-post-modal-toolbar-btn h-8 w-8 p-0 rounded hover:bg-gray-200 flex items-center justify-center"
-                            title="Link"
-                          >
-                            <Link size={16} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => insertMarkdown("image")}
-                            className="create-post-modal-toolbar-btn h-8 w-8 p-0 rounded hover:bg-gray-200 flex items-center justify-center"
-                            title="Image"
-                          >
-                            <ImageIcon size={16} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => insertMarkdown("list")}
-                            className="create-post-modal-toolbar-btn h-8 w-8 p-0 rounded hover:bg-gray-200 flex items-center justify-center"
-                            title="List"
-                          >
-                            <List size={16} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => insertMarkdown("orderedlist")}
-                            className="create-post-modal-toolbar-btn h-8 w-8 p-0 rounded hover:bg-gray-200 flex items-center justify-center"
-                            title="Numbered List"
-                          >
-                            <span className="text-sm font-bold">1.</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => insertMarkdown("quote")}
-                            className="create-post-modal-toolbar-btn h-8 w-8 p-0 rounded hover:bg-gray-200 flex items-center justify-center"
-                            title="Quote"
-                          >
-                            <span className="text-lg font-bold">"</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => insertMarkdown("heading")}
-                            className="create-post-modal-toolbar-btn h-8 w-8 p-0 rounded hover:bg-gray-200 flex items-center justify-center"
-                            title="Heading"
-                          >
-                            <span className="text-sm font-bold">H</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => insertMarkdown("table")}
-                            className="create-post-modal-toolbar-btn h-8 w-8 p-0 rounded hover:bg-gray-200 flex items-center justify-center"
-                            title="Table"
-                          >
-                            <span className="text-sm font-bold">⊞</span>
-                          </button>
-                        </div>
-
-                        <textarea
-                          ref={textareaRef}
-                          value={description}
-                          onChange={(e) => setDescription(e.target.value)}
-                          className="create-post-modal-textarea min-h-40 border-0 rounded-none w-full px-3 py-2 resize-none focus:outline-none"
-                          placeholder="Describe your question in detail..."
-                          required
-                        />
-                      </div>
-
-                      <div className="flex justify-end items-center mt-4">
-                        <div className="flex items-center text-xs text-gray-500">
-                          <Hash size={14} className="mr-1" />
-                          Markdown supported
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {activeTab === "natural" && (
-                    <div className="space-y-4 mt-2">
-                      <textarea
-                        ref={naturalTextareaRef}
-                        value={naturalLanguageInput}
-                        onChange={(e) =>
-                          setNaturalLanguageInput(e.target.value)
-                        }
-                        className="create-post-modal-input min-h-40 resize-none rounded-xl w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Describe your question in natural language..."
-                      />
-
-                      <div className="flex justify-between items-center mt-4">
-                        <button
-                          type="button"
-                          onClick={convertToMarkdown}
-                          disabled={!naturalLanguageInput.trim()}
-                          className="create-post-modal-button rounded-xl px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Convert to Markdown
-                        </button>
-
-                        <div className="flex items-center text-xs text-gray-500">
-                          <MessageSquare size={14} className="mr-1" />
-                          Natural language input
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {activeTab === "preview" && (
-                    <div className="space-y-0 mt-2">
-                      <div className="create-post-modal-preview p-4 rounded-xl bg-gray-50 border border-gray-200">
-                        <div className="prose prose-gray prose-sm max-w-none">
-                          {description ? (
-                            <ReactMarkdown
-                              remarkPlugins={[remarkGfm]}
-                              rehypePlugins={[rehypeRaw]}
-                            >
-                              {description}
-                            </ReactMarkdown>
-                          ) : (
-                            <em className="text-gray-500">
-                              Nothing to preview
-                            </em>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex justify-end items-center mt-4">
-                        <div className="flex items-center text-xs text-gray-500">
-                          <Eye size={14} className="mr-1" />
-                          Live preview
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <RichTextEditor
+                  value={description}
+                  onChange={setDescription}
+                  placeholder="Describe your question in detail..."
+                />
               </div>
 
               {/* Tags */}
@@ -523,17 +317,19 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 </label>
 
                 <div className="relative">
-                  <div className="create-post-modal-tag-container flex flex-wrap gap-2 p-3 rounded-xl min-h-12 w-full border border-gray-300 bg-white">
+                  <div className="create-post-modal-tag-container flex flex-wrap gap-2 p-3 rounded-xl min-h-12 w-full border border-gray-300 bg-white focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all duration-200">
                     {tags.map((tag, index) => (
                       <div
                         key={index}
-                        className="create-post-modal-tag rounded-full border-0 bg-blue-100 text-blue-800 px-3 py-1 text-sm flex items-center gap-1"
+                        className="create-post-modal-tag rounded-full border-0 bg-blue-100 text-blue-800 px-3 py-1 text-sm flex items-center gap-1 animate-in slide-in-from-top-1 duration-200"
                       >
+                        <span className="text-xs">#</span>
                         {tag}
                         <button
                           type="button"
                           onClick={() => removeTag(tag)}
-                          className="h-4 w-4 p-0 ml-1 text-blue-600 hover:text-blue-800 hover:bg-transparent rounded-full flex items-center justify-center"
+                          className="h-4 w-4 p-0 ml-1 text-blue-600 hover:text-blue-800 hover:bg-blue-200 rounded-full flex items-center justify-center transition-colors duration-200"
+                          title="Remove tag"
                         >
                           <X size={12} />
                         </button>
@@ -549,21 +345,36 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                       onFocus={() =>
                         setShowTagSuggestions(filteredSuggestions.length > 0)
                       }
-                      className="create-post-modal-tag-input flex-1 min-w-32 p-0 h-6 border-0 outline-none bg-transparent"
-                      placeholder={tags.length === 0 ? "Add tags..." : ""}
+                      onBlur={() => {
+                        // Delay hiding suggestions to allow clicking on them
+                        setTimeout(() => setShowTagSuggestions(false), 200);
+                      }}
+                      className="create-post-modal-tag-input flex-1 min-w-32 p-0 h-6 border-0 outline-none bg-transparent text-sm"
+                      placeholder={tags.length === 0 ? "Add tags (press Enter or comma to add)..." : "Add more tags..."}
+                      disabled={tags.length >= 5}
                     />
                   </div>
+                  
+                  {tags.length >= 5 && (
+                    <p className="text-xs text-gray-500 mt-1">Maximum 5 tags allowed</p>
+                  )}
+                </div>
 
                   <div className="flex justify-between items-center mt-2">
-                    <button
-                      type="button"
-                      onClick={handleAIClassification}
-                      disabled={!title.trim() && !description.trim()}
-                      className="create-post-modal-button text-xs sm:text-sm px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                    >
-                      <Sparkles size={16} />
-                      Auto-tag with AI
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleAIClassification}
+                        disabled={!title.trim() && !description.trim()}
+                        className="create-post-modal-button text-xs sm:text-sm px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      >
+                        <Sparkles size={16} />
+                        Auto-tag with AI
+                      </button>
+                      <span className="text-xs text-gray-500">
+                        {tags.length}/5 tags
+                      </span>
+                    </div>
                   </div>
 
                   {/* Tag Suggestions */}
@@ -579,9 +390,9 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                               key={index}
                               type="button"
                               onClick={() => addTag(tag)}
-                              className="create-post-modal-suggestion-btn h-7 text-xs rounded-full px-3 py-1 border border-gray-300 hover:bg-gray-100"
+                              className="create-post-modal-suggestion-btn h-7 text-xs rounded-full px-3 py-1 border border-gray-300 hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
                             >
-                              {tag}
+                              #{tag}
                             </button>
                           ))}
                         </div>
@@ -589,7 +400,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                     </div>
                   )}
                 </div>
-              </div>
 
               {/* Submit Button */}
               <div className="flex justify-center pt-6">

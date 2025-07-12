@@ -5,6 +5,7 @@ import Temp from "./components/temp";
 import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
 import AskQuestionPage from "./pages/AskQuestionPage";
+import AdminPage from "./pages/AdminPage";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/question/:id" element={<Temp />} />
           <Route path="/ask" element={<AskQuestionPage />} />
+          <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </Router>
     </AuthProvider>

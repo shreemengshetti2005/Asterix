@@ -14,24 +14,33 @@ export const signup=async(req:Request,res:Response)=>{
              throw new Error("JWT_SECRET is not defined in environment variables");
         }
       
-        const d=await client.user.create({
-            data:{
-                
-                username:Inputdata.username,
-                password:hassedpassword,
-                email:   Inputdata.email
-            }
-        })
-        
-        const wait= jwt.sign({ userId: d.id },JWT_SECRET)
-     
-        res.cookie("jwt_token", wait, {
-            httpOnly: true,
-            secure: true
-          });          
-        res.json(responce({status:200,message:"signup complete",data:d,frontend:"signup complete"}))
-        return
-        
+      const d = await client.user.create({
+  data: {
+    username: Inputdata.username,
+    password: hassedpassword,
+    email: Inputdata.email
+  }
+});
+
+const { password, ...userWithoutPassword } = d;
+
+const wait = jwt.sign({ userId: d.id }, JWT_SECRET);
+
+res.cookie("jwt_token", wait, {
+  httpOnly: true,
+  secure: true
+});
+
+res.json(
+  responce({
+    status: 200,
+    message: "signup complete",
+    data: userWithoutPassword,
+    frontend: "signup complete"
+  })
+);
+return;
+
     } catch (error) {
         res.json(responce({status:500,message:"some error",data:"some error",frontend:"signup uncessufll"}))
         return

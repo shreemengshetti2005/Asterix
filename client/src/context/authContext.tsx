@@ -1,9 +1,13 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import type { ReactNode } from "react";
+import { apiService } from "../services/api";
+import type { ApiResponse, User as ApiUser } from "../services/api";
 
 interface User {
-  id: string;
+  id: number;
   email: string;
   username: string;
+  isAdmin?: boolean;
   reputation: number;
   joinDate: string;
   badges: {
@@ -15,7 +19,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string, onSuccess?: (isAdmin: boolean) => void) => Promise<boolean>;
   signup: (
     email: string,
     password: string,
@@ -40,34 +44,59 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    // Initialize from localStorage on component mount
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const [isLoading, setIsLoading] = useState(false);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Simple validation - in real app, this would be API call
-    if (email && password.length >= 6) {
-      const userData: User = {
-        id: "1",
-        email,
-        username: email.split("@")[0],
-        reputation: 1247,
-        joinDate: new Date().toISOString().split("T")[0],
-        badges: {
-          gold: 2,
-          silver: 15,
-          bronze: 43,
-        },
-      };
-      setUser(userData);
-      setIsLoading(false);
-      return true;
+  // Save user to localStorage whenever it changes
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('user');
     }
-    setIsLoading(false);
-    return false;
+  }, [user]);
+
+  const login = async (email: string, password: string, onSuccess?: (isAdmin: boolean) => void): Promise<boolean> => {
+    setIsLoading(true);
+    try {
+      const response: ApiResponse<ApiUser> = await apiService.login({ email, password });
+      
+      if (response.status === 200 && response.data) {
+        const userData: User = {
+          id: response.data.id,
+          email: response.data.email,
+          username: response.data.username,
+          isAdmin: response.data.isAdmin || false,
+          reputation: 1, // Default reputation for new users
+          joinDate: new Date().toISOString().split("T")[0],
+          badges: {
+            gold: 0,
+            silver: 0,
+            bronze: 0,
+          },
+        };
+        setUser(userData);
+        setIsLoading(false);
+        
+        // Call success callback with admin status
+        if (onSuccess) {
+          onSuccess(userData.isAdmin || false);
+        }
+        
+        return true;
+      } else {
+        setIsLoading(false);
+        return false;
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setIsLoading(false);
+      return false;
+    }
   };
 
   const signup = async (
@@ -76,33 +105,45 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     username: string,
   ): Promise<boolean> => {
     setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Simple validation - in real app, this would be API call
-    if (email && password.length >= 6 && username.length >= 3) {
-      const userData: User = {
-        id: "1",
-        email,
-        username,
-        reputation: 1,
-        joinDate: new Date().toISOString().split("T")[0],
-        badges: {
-          gold: 0,
-          silver: 0,
-          bronze: 0,
-        },
-      };
-      setUser(userData);
+    try {
+      const response: ApiResponse<ApiUser> = await apiService.signup({ email, password, username });
+      
+      if (response.status === 200 && response.data) {
+        const userData: User = {
+          id: response.data.id,
+          email: response.data.email,
+          username: response.data.username,
+          reputation: 1,
+          joinDate: new Date().toISOString().split("T")[0],
+          badges: {
+            gold: 0,
+            silver: 0,
+            bronze: 0,
+          },
+        };
+        setUser(userData);
+        setIsLoading(false);
+        return true;
+      } else {
+        setIsLoading(false);
+        return false;
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
       setIsLoading(false);
-      return true;
+      return false;
     }
-    setIsLoading(false);
-    return false;
   };
 
-  const logout = () => {
-    setUser(null);
+  const logout = async () => {
+    try {
+      // Since there's no logout endpoint in the API, we'll just clear local state
+      setUser(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Even if logout fails, clear local user state
+      setUser(null);
+    }
   };
 
   return (

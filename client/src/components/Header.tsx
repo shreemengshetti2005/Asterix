@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Code2, Menu, X, LogOut } from "lucide-react";
 import { useAuth } from "../context/authContext";
+import { NotificationButton } from "./NotificationButton";
 
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -29,11 +30,27 @@ export function Header() {
         <div className="hidden md:flex items-center space-x-4">
           {user ? (
             <div className="flex items-center space-x-3">
+              <NotificationButton isLoggedIn={!!user} />
+              {user.isAdmin && (
+                <Link to="/admin">
+                  <Button
+                    variant="outline"
+                    className="px-4 py-2 text-sm rounded-lg bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 transition-colors"
+                  >
+                    Admin Panel
+                  </Button>
+                </Link>
+              )}
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs">
                   {user.username.charAt(0).toUpperCase()}
                 </div>
                 <span className="text-sm font-medium text-gray-700">{user.username}</span>
+                {user.isAdmin && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    Admin
+                  </span>
+                )}
               </div>
               <Button
                 variant="outline"
@@ -86,12 +103,30 @@ export function Header() {
 
             {user ? (
               <>
-                <div className="flex items-center space-x-2 py-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs">
-                    {user.username.charAt(0).toUpperCase()}
+                <div className="flex items-center justify-between py-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs">
+                      {user.username.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="text-sm font-medium text-gray-700">{user.username}</span>
+                    {user.isAdmin && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        Admin
+                      </span>
+                    )}
                   </div>
-                  <span className="text-sm font-medium text-gray-700">{user.username}</span>
+                  <NotificationButton isLoggedIn={!!user} />
                 </div>
+                {user.isAdmin && (
+                  <Link to="/admin">
+                    <Button
+                      variant="outline"
+                      className="w-full px-4 py-2 text-base rounded-lg bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 transition-colors"
+                    >
+                      Admin Panel
+                    </Button>
+                  </Link>
+                )}
                 <Button
                   variant="outline"
                   onClick={handleLogout}

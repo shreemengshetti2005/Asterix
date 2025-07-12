@@ -21,10 +21,15 @@ export const LoginPage: React.FC = () => {
       return;
     }
 
-    const success = await login(email, password);
-    if (success) {
-      navigate("/");
-    } else {
+    const success = await login(email, password, (isAdmin) => {
+      if (isAdmin) {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
+    });
+    
+    if (!success) {
       setError("Invalid email or password");
     }
   };
