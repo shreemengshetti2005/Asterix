@@ -309,7 +309,7 @@ class ApiService {
 
   // Comment Methods
   async getComments(answerId: number): Promise<CommentsResponse> {
-    return this.request<CommentsResponse>('/answer/recieve_comment', {
+    return this.request<CommentsResponse>('/answer/comments', {
       method: 'POST',
       body: JSON.stringify({ answerId }),
     });

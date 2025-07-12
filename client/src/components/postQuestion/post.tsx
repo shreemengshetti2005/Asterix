@@ -157,14 +157,14 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
       } catch (error) {
         console.error('Error converting to markdown:', error);
         // Fallback to simple conversion
-        const converted = naturalLanguageInput
-          .split("\n\n")
-          .map((paragraph) => paragraph.trim())
-          .filter((p) => p)
-          .join("\n\n");
+      const converted = naturalLanguageInput
+        .split("\n\n")
+        .map((paragraph) => paragraph.trim())
+        .filter((p) => p)
+        .join("\n\n");
 
-        setDescription(converted);
-        setActiveTab("write");
+      setDescription(converted);
+      setActiveTab("write");
       }
     }
   };
@@ -195,30 +195,30 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
     } catch (error) {
       console.error('Error getting AI tags:', error);
       // Fallback to simple keyword matching
-      const content = `${title} ${description}`.toLowerCase();
-      const suggestedTags = [];
+    const content = `${title} ${description}`.toLowerCase();
+    const suggestedTags = [];
 
       if (content.includes("how") || content.includes("help") || content.includes("question")) {
-        suggestedTags.push("beginner question");
-      }
+      suggestedTags.push("beginner question");
+    }
       if (content.includes("code") || content.includes("programming") || content.includes("debug")) {
-        suggestedTags.push("technical help");
-      }
+      suggestedTags.push("technical help");
+    }
       if (content.includes("tutorial") || content.includes("learn") || content.includes("guide")) {
-        suggestedTags.push("how-to");
-      }
+      suggestedTags.push("how-to");
+    }
       if (content.includes("error") || content.includes("issue") || content.includes("problem")) {
-        suggestedTags.push("troubleshooting");
-      }
+      suggestedTags.push("troubleshooting");
+    }
       if (content.includes("best") || content.includes("practice") || content.includes("recommend")) {
-        suggestedTags.push("best practices");
-      }
-      if (content.includes("review") || content.includes("feedback")) {
-        suggestedTags.push("code review");
-      }
+      suggestedTags.push("best practices");
+    }
+    if (content.includes("review") || content.includes("feedback")) {
+      suggestedTags.push("code review");
+    }
 
-      const newTags = suggestedTags.filter((tag) => !tags.includes(tag));
-      if (newTags.length > 0) {
+    const newTags = suggestedTags.filter((tag) => !tags.includes(tag));
+    if (newTags.length > 0) {
         const tagsToAdd = newTags.slice(0, 5 - tags.length);
         setTags([...tags, ...tagsToAdd]);
       }
@@ -262,12 +262,12 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
           <div className="p-4 sm:p-6">
             <div className="mb-4 sm:mb-6 flex justify-between items-start">
               <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
-                  Ask a Question
-                </h2>
-                <p className="text-gray-600 text-sm">
-                  Get help from the community
-                </p>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+                Ask a Question
+              </h2>
+              <p className="text-gray-600 text-sm">
+                Get help from the community
+              </p>
               </div>
               <button
                 onClick={onClose}
@@ -304,9 +304,9 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                   Question Details
                 </label>
                 <RichTextEditor
-                  value={description}
+                          value={description}
                   onChange={setDescription}
-                  placeholder="Describe your question in detail..."
+                          placeholder="Describe your question in detail..."
                 />
               </div>
 
@@ -358,19 +358,19 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                   {tags.length >= 5 && (
                     <p className="text-xs text-gray-500 mt-1">Maximum 5 tags allowed</p>
                   )}
-                </div>
+                  </div>
 
                   <div className="flex justify-between items-center mt-2">
                     <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={handleAIClassification}
-                        disabled={!title.trim() && !description.trim()}
-                        className="create-post-modal-button text-xs sm:text-sm px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                      >
-                        <Sparkles size={16} />
-                        Auto-tag with AI
-                      </button>
+                    <button
+                      type="button"
+                      onClick={handleAIClassification}
+                      disabled={!title.trim() && !description.trim()}
+                      className="create-post-modal-button text-xs sm:text-sm px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                      <Sparkles size={16} />
+                      Auto-tag with AI
+                    </button>
                       <span className="text-xs text-gray-500">
                         {tags.length}/5 tags
                       </span>
@@ -399,7 +399,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                       </div>
                     </div>
                   )}
-                </div>
+              </div>
 
               {/* Submit Button */}
               <div className="flex justify-center pt-6">

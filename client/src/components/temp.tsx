@@ -46,7 +46,6 @@ function Temp() {
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [showAllAnswers, setShowAllAnswers] = useState(false);
   const [answerEditorMode, setAnswerEditorMode] = useState<'write' | 'preview'>('write');
-  const [commentCounts, setCommentCounts] = useState<{ [key: number]: number }>({});
   const ANSWERS_TO_SHOW = 2;
   
   // Add ref for the answer textarea
@@ -318,18 +317,13 @@ function Temp() {
           <span className="text-xs font-semibold">{answer.downvotes}</span>
         </button>
 
-        {/* Comment Count */}
-        <div className="flex items-center space-x-1.5 px-2.5 py-1.5 text-gray-500">
-          <MessageCircle className="h-3.5 w-3.5" />
-          <span className="text-xs font-medium">{commentCounts[answer.id] || 0}</span>
-        </div>
+
       </div>
 
       {/* Comment Section */}
       <CommentSection 
         answerId={answer.id} 
         isLoggedIn={!!user} 
-        onCommentCountChange={(count) => setCommentCounts(prev => ({ ...prev, [answer.id]: count }))}
       />
     </div>
   );

@@ -17,7 +17,6 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ answerId, isLogg
   const [showAddComment, setShowAddComment] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [commentCount, setCommentCount] = useState(0);
 
   // Only fetch comments when they are shown
   const fetchComments = async () => {
@@ -29,8 +28,6 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ answerId, isLogg
       if (response.success) {
         const commentsList = response.comments || [];
         setComments(commentsList);
-        setCommentCount(commentsList.length);
-        onCommentCountChange?.(commentsList.length);
       }
     } catch (error) {
       console.error('Error fetching comments:', error);
@@ -38,23 +35,6 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ answerId, isLogg
       setIsLoading(false);
     }
   };
-
-  // Fetch comment count on mount
-  useEffect(() => {
-    const getCommentCount = async () => {
-      try {
-        const response = await apiService.getComments(answerId);
-        if (response.success) {
-          const count = response.comments?.length || 0;
-          setCommentCount(count);
-          onCommentCountChange?.(count);
-        }
-      } catch (error) {
-        console.error('Error fetching comment count:', error);
-      }
-    };
-    getCommentCount();
-  }, [answerId, onCommentCountChange]);
 
   // Fetch comments when showComments changes
   useEffect(() => {
@@ -72,8 +52,6 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ answerId, isLogg
       if (response.success) {
         const updatedComments = [response.comment, ...comments];
         setComments(updatedComments);
-        setCommentCount(updatedComments.length);
-        onCommentCountChange?.(updatedComments.length);
         setNewComment('');
         setShowAddComment(false);
       }
@@ -104,9 +82,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ answerId, isLogg
           className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800 font-medium transition-colors"
         >
           <MessageSquare className="h-4 w-4" />
-          <span>
-            {commentCount} {commentCount === 1 ? 'Comment' : 'Comments'}
-          </span>
+          <span>Comments</span>
           {showComments ? (
             <ChevronUp className="h-3 w-3" />
           ) : (
