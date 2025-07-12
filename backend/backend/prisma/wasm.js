@@ -146,6 +146,15 @@ exports.Prisma.TagScalarFieldEnum = {
   name: 'name'
 };
 
+exports.Prisma.CommentScalarFieldEnum = {
+  id: 'id',
+  content: 'content',
+  userId: 'userId',
+  answerId: 'answerId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.AnswerScalarFieldEnum = {
   id: 'id',
   content: 'content',
@@ -197,6 +206,7 @@ exports.Prisma.ModelName = {
   User: 'User',
   Question: 'Question',
   Tag: 'Tag',
+  Comment: 'Comment',
   Answer: 'Answer',
   Notification: 'Notification',
   AnswerVote: 'AnswerVote'

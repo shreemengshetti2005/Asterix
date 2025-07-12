@@ -13,11 +13,12 @@ model User {
   username      String
   email         String         @unique
   password      String
-  questions     Question[] // One user can ask many questions
-  answers       Answer[] // One user can write many answers
-  notifications Notification[] // One user can receive many notifications
-  answerVotes   AnswerVote[] // ➕ User's votes on answers
+  questions     Question[]
+  answers       Answer[]
+  notifications Notification[]
+  answerVotes   AnswerVote[]
   isAdmin       Boolean        @default(false)
+  comments      Comment[] // 👈 Add this line
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 }
@@ -43,6 +44,17 @@ model Tag {
   questions Question[] @relation("QuestionTags")
 }
 
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  answer    Answer   @relation(fields: [answerId], references: [id])
+  answerId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Answer {
   id         Int          @id @default(autoincrement())
   content    String
@@ -52,7 +64,8 @@ model Answer {
   questionId Int
   upvotes    Int          @default(0)
   downvotes  Int          @default(0)
-  votes      AnswerVote[] // ➕ all votes on this answer
+  votes      AnswerVote[]
+  comments   Comment[] // 👈 Added relation
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
 }

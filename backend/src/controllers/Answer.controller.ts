@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import client from "../db/db";
-export const getQuestionWithAnswers = async (req:Request, res:Response) => {
+
+export const getQuestionWithAnswers = async (req: Request, res: Response) => {
   const { questionid } = req.params;
 
   try {
@@ -12,8 +13,18 @@ export const getQuestionWithAnswers = async (req:Request, res:Response) => {
         answers: {
           include: {
             user: true,
+            comments: {
+              include: {
+                user: true,
+              },
+              orderBy: {
+                createdAt: 'asc'
+              }
+            },
           },
-          orderBy: { createdAt: 'desc' },
+          orderBy: {
+            createdAt: 'desc'
+          }
         },
       },
     });
@@ -36,7 +47,10 @@ export const getQuestionWithAnswers = async (req:Request, res:Response) => {
           username: question.user.username,
           email: question.user.email,
         },
-        tags: question.tags.map(tag => ({ id: tag.id, name: tag.name })),
+        tags: question.tags.map(tag => ({
+          id: tag.id,
+          name: tag.name,
+        })),
       },
       answers: question.answers.map(answer => ({
         id: answer.id,
@@ -49,14 +63,26 @@ export const getQuestionWithAnswers = async (req:Request, res:Response) => {
           id: answer.user.id,
           username: answer.user.username,
           email: answer.user.email,
-        }
+        },
+        comments: answer.comments.map(comment => ({
+          id: comment.id,
+          content: comment.content,
+          createdAt: comment.createdAt,
+          updatedAt: comment.updatedAt,
+          commentedBy: {
+            id: comment.user.id,
+            username: comment.user.username,
+            email: comment.user.email,
+          }
+        }))
       })),
     };
 
     return res.status(200).json({ success: true, ...response });
+
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: 'Server error' });
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
@@ -333,5 +359,55 @@ export const admin_delete = async (req: Request, res: Response) => {
   } catch (err) {
     console.error("Delete Error:", err);
     return res.status(500).json({ error: "Something went wrong." });
+  }
+};
+
+
+export const comment = async (req: Request, res: Response) => {
+  if (!req.userId) return res.status(401).json({ error: "Unauthorized" });
+
+  const userId = parseInt(req.userId);
+  const { answerId, content } = req.body;
+
+  if (!answerId || !content) {
+    return res.status(400).json({ error: "Missing answerId or content" });
+  }
+
+  try {
+    // Get the answer to find its author
+    const answer = await client.answer.findUnique({
+      where: { id: answerId },
+      select: { userId: true, questionId: true },
+    });
+
+    if (!answer) {
+      return res.status(404).json({ error: "Answer not found" });
+    }
+
+    // Add the comment
+    const newComment = await client.comment.create({
+      data: {
+        content,
+        userId,
+        answerId,
+      },
+    });
+
+    // Only send notification if commenter is not the answer author
+    if (answer.userId !== userId) {
+      await client.notification.create({
+        data: {
+          message: `Your answer has a new comment.`,
+          userId: answer.userId,
+          questionId: answer.questionId || null,
+        },
+      });
+    }
+
+    return res.status(200).json({ message: "Comment added", comment: newComment });
+
+  } catch (error) {
+    console.error("Comment Error:", error);
+    return res.status(500).json({ error: "Something went wrong" });
   }
 };
