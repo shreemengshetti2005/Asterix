@@ -2,6 +2,10 @@ import { Request, Response } from 'express'
 
 import { createQuestionSchema } from '../helpers/Interface'
 import client from '../db/db'
+import { COLLECTION_NAME } from '../db/vectordb'
+import { chroma } from '../db/vectordb'
+import { generateEmbeddingFromGemini } from '../helpers/vector'
+import { uploadToChroma } from '../helpers/vector'
 
 
 export const createQuestion = async (req: Request, res: Response) => {
@@ -43,6 +47,7 @@ export const createQuestion = async (req: Request, res: Response) => {
         tags: true
       }
     })
+    await uploadToChroma(`${question.id}`,title+content)
      await client.notification.create({
       data: {
         userId: parseInt(userId),
@@ -242,3 +247,76 @@ export const getFilteredQuestions = async (req:Request, res:Response) => {
   }
 };
 
+export const searchQuestions = async (req: Request, res: Response) => {
+  const { query } = req.body;
+
+  if (!query || typeof query !== 'string') {
+    return res.status(400).json({ error: 'Query string is required.' });
+  }
+
+  try {
+    // 1. Embed the query string
+    const embedding = await generateEmbeddingFromGemini(query);
+
+    const searchRes = await chroma.post(`/api/v1/collections/${COLLECTION_NAME}/query`, {
+      queries: [embedding],
+      n_results: 20
+    });
+
+    const ids = searchRes.data?.results?.[0]?.ids || [];
+
+    if (ids.length === 0) {
+      return res.status(200).json({ questions: [] });
+    }
+
+    // 3. Fetch full question details from DB
+    const questionIds = ids.map((id: string) => parseInt(id)).filter((id: number) => !isNaN(id));
+
+    const questions = await client.question.findMany({
+      where: {
+        id: { in: questionIds }
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            email: true
+          }
+        },
+        tags: true,
+        answers: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // 4. Format response
+    const formattedQuestions = questions.map((q) => ({
+      id: q.id,
+      title: q.title,
+      content: q.content,
+      user: q.user,
+      tags: q.tags,
+      answers: q.answers,
+      answerCount: q.answers.length,
+      isUnanswered: q.answers.length === 0,
+      upvotes: q.upvotes,
+      downvotes: q.downvotes,
+      createdAt: q.createdAt,
+      updatedAt: q.updatedAt
+    }));
+
+    return res.status(200).json({ questions: formattedQuestions });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Search failed. Please try again.' });
+  }
+};
