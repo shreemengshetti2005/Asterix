@@ -4844,12 +4844,16 @@ export namespace Prisma {
     id: number | null
     userId: number | null
     questionId: number | null
+    upvotes: number | null
+    downvotes: number | null
   }
 
   export type AnswerSumAggregateOutputType = {
     id: number | null
     userId: number | null
     questionId: number | null
+    upvotes: number | null
+    downvotes: number | null
   }
 
   export type AnswerMinAggregateOutputType = {
@@ -4858,6 +4862,8 @@ export namespace Prisma {
     userId: number | null
     questionId: number | null
     createdAt: Date | null
+    upvotes: number | null
+    downvotes: number | null
     updatedAt: Date | null
   }
 
@@ -4867,6 +4873,8 @@ export namespace Prisma {
     userId: number | null
     questionId: number | null
     createdAt: Date | null
+    upvotes: number | null
+    downvotes: number | null
     updatedAt: Date | null
   }
 
@@ -4876,6 +4884,8 @@ export namespace Prisma {
     userId: number
     questionId: number
     createdAt: number
+    upvotes: number
+    downvotes: number
     updatedAt: number
     _all: number
   }
@@ -4885,12 +4895,16 @@ export namespace Prisma {
     id?: true
     userId?: true
     questionId?: true
+    upvotes?: true
+    downvotes?: true
   }
 
   export type AnswerSumAggregateInputType = {
     id?: true
     userId?: true
     questionId?: true
+    upvotes?: true
+    downvotes?: true
   }
 
   export type AnswerMinAggregateInputType = {
@@ -4899,6 +4913,8 @@ export namespace Prisma {
     userId?: true
     questionId?: true
     createdAt?: true
+    upvotes?: true
+    downvotes?: true
     updatedAt?: true
   }
 
@@ -4908,6 +4924,8 @@ export namespace Prisma {
     userId?: true
     questionId?: true
     createdAt?: true
+    upvotes?: true
+    downvotes?: true
     updatedAt?: true
   }
 
@@ -4917,6 +4935,8 @@ export namespace Prisma {
     userId?: true
     questionId?: true
     createdAt?: true
+    upvotes?: true
+    downvotes?: true
     updatedAt?: true
     _all?: true
   }
@@ -5013,6 +5033,8 @@ export namespace Prisma {
     userId: number
     questionId: number
     createdAt: Date
+    upvotes: number
+    downvotes: number
     updatedAt: Date
     _count: AnswerCountAggregateOutputType | null
     _avg: AnswerAvgAggregateOutputType | null
@@ -5041,6 +5063,8 @@ export namespace Prisma {
     userId?: boolean
     questionId?: boolean
     createdAt?: boolean
+    upvotes?: boolean
+    downvotes?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     question?: boolean | QuestionDefaultArgs<ExtArgs>
@@ -5052,6 +5076,8 @@ export namespace Prisma {
     userId?: boolean
     questionId?: boolean
     createdAt?: boolean
+    upvotes?: boolean
+    downvotes?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     question?: boolean | QuestionDefaultArgs<ExtArgs>
@@ -5063,6 +5089,8 @@ export namespace Prisma {
     userId?: boolean
     questionId?: boolean
     createdAt?: boolean
+    upvotes?: boolean
+    downvotes?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     question?: boolean | QuestionDefaultArgs<ExtArgs>
@@ -5074,10 +5102,12 @@ export namespace Prisma {
     userId?: boolean
     questionId?: boolean
     createdAt?: boolean
+    upvotes?: boolean
+    downvotes?: boolean
     updatedAt?: boolean
   }
 
-  export type AnswerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "content" | "userId" | "questionId" | "createdAt" | "updatedAt", ExtArgs["result"]["answer"]>
+  export type AnswerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "content" | "userId" | "questionId" | "createdAt" | "upvotes" | "downvotes" | "updatedAt", ExtArgs["result"]["answer"]>
   export type AnswerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     question?: boolean | QuestionDefaultArgs<ExtArgs>
@@ -5103,6 +5133,8 @@ export namespace Prisma {
       userId: number
       questionId: number
       createdAt: Date
+      upvotes: number
+      downvotes: number
       updatedAt: Date
     }, ExtArgs["result"]["answer"]>
     composites: {}
@@ -5534,6 +5566,8 @@ export namespace Prisma {
     readonly userId: FieldRef<"Answer", 'Int'>
     readonly questionId: FieldRef<"Answer", 'Int'>
     readonly createdAt: FieldRef<"Answer", 'DateTime'>
+    readonly upvotes: FieldRef<"Answer", 'Int'>
+    readonly downvotes: FieldRef<"Answer", 'Int'>
     readonly updatedAt: FieldRef<"Answer", 'DateTime'>
   }
     
@@ -7143,6 +7177,8 @@ export namespace Prisma {
     userId: 'userId',
     questionId: 'questionId',
     createdAt: 'createdAt',
+    upvotes: 'upvotes',
+    downvotes: 'downvotes',
     updatedAt: 'updatedAt'
   };
 
@@ -7456,6 +7492,8 @@ export namespace Prisma {
     userId?: IntFilter<"Answer"> | number
     questionId?: IntFilter<"Answer"> | number
     createdAt?: DateTimeFilter<"Answer"> | Date | string
+    upvotes?: IntFilter<"Answer"> | number
+    downvotes?: IntFilter<"Answer"> | number
     updatedAt?: DateTimeFilter<"Answer"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     question?: XOR<QuestionScalarRelationFilter, QuestionWhereInput>
@@ -7467,6 +7505,8 @@ export namespace Prisma {
     userId?: SortOrder
     questionId?: SortOrder
     createdAt?: SortOrder
+    upvotes?: SortOrder
+    downvotes?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
     question?: QuestionOrderByWithRelationInput
@@ -7481,6 +7521,8 @@ export namespace Prisma {
     userId?: IntFilter<"Answer"> | number
     questionId?: IntFilter<"Answer"> | number
     createdAt?: DateTimeFilter<"Answer"> | Date | string
+    upvotes?: IntFilter<"Answer"> | number
+    downvotes?: IntFilter<"Answer"> | number
     updatedAt?: DateTimeFilter<"Answer"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     question?: XOR<QuestionScalarRelationFilter, QuestionWhereInput>
@@ -7492,6 +7534,8 @@ export namespace Prisma {
     userId?: SortOrder
     questionId?: SortOrder
     createdAt?: SortOrder
+    upvotes?: SortOrder
+    downvotes?: SortOrder
     updatedAt?: SortOrder
     _count?: AnswerCountOrderByAggregateInput
     _avg?: AnswerAvgOrderByAggregateInput
@@ -7509,6 +7553,8 @@ export namespace Prisma {
     userId?: IntWithAggregatesFilter<"Answer"> | number
     questionId?: IntWithAggregatesFilter<"Answer"> | number
     createdAt?: DateTimeWithAggregatesFilter<"Answer"> | Date | string
+    upvotes?: IntWithAggregatesFilter<"Answer"> | number
+    downvotes?: IntWithAggregatesFilter<"Answer"> | number
     updatedAt?: DateTimeWithAggregatesFilter<"Answer"> | Date | string
   }
 
@@ -7773,6 +7819,8 @@ export namespace Prisma {
   export type AnswerCreateInput = {
     content: string
     createdAt?: Date | string
+    upvotes?: number
+    downvotes?: number
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutAnswersInput
     question: QuestionCreateNestedOneWithoutAnswersInput
@@ -7784,12 +7832,16 @@ export namespace Prisma {
     userId: number
     questionId: number
     createdAt?: Date | string
+    upvotes?: number
+    downvotes?: number
     updatedAt?: Date | string
   }
 
   export type AnswerUpdateInput = {
     content?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    upvotes?: IntFieldUpdateOperationsInput | number
+    downvotes?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutAnswersNestedInput
     question?: QuestionUpdateOneRequiredWithoutAnswersNestedInput
@@ -7801,6 +7853,8 @@ export namespace Prisma {
     userId?: IntFieldUpdateOperationsInput | number
     questionId?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    upvotes?: IntFieldUpdateOperationsInput | number
+    downvotes?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -7810,12 +7864,16 @@ export namespace Prisma {
     userId: number
     questionId: number
     createdAt?: Date | string
+    upvotes?: number
+    downvotes?: number
     updatedAt?: Date | string
   }
 
   export type AnswerUpdateManyMutationInput = {
     content?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    upvotes?: IntFieldUpdateOperationsInput | number
+    downvotes?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -7825,6 +7883,8 @@ export namespace Prisma {
     userId?: IntFieldUpdateOperationsInput | number
     questionId?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    upvotes?: IntFieldUpdateOperationsInput | number
+    downvotes?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -8132,6 +8192,8 @@ export namespace Prisma {
     userId?: SortOrder
     questionId?: SortOrder
     createdAt?: SortOrder
+    upvotes?: SortOrder
+    downvotes?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -8139,6 +8201,8 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     questionId?: SortOrder
+    upvotes?: SortOrder
+    downvotes?: SortOrder
   }
 
   export type AnswerMaxOrderByAggregateInput = {
@@ -8147,6 +8211,8 @@ export namespace Prisma {
     userId?: SortOrder
     questionId?: SortOrder
     createdAt?: SortOrder
+    upvotes?: SortOrder
+    downvotes?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -8156,6 +8222,8 @@ export namespace Prisma {
     userId?: SortOrder
     questionId?: SortOrder
     createdAt?: SortOrder
+    upvotes?: SortOrder
+    downvotes?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -8163,6 +8231,8 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     questionId?: SortOrder
+    upvotes?: SortOrder
+    downvotes?: SortOrder
   }
 
   export type IntNullableFilter<$PrismaModel = never> = {
@@ -8823,6 +8893,8 @@ export namespace Prisma {
   export type AnswerCreateWithoutUserInput = {
     content: string
     createdAt?: Date | string
+    upvotes?: number
+    downvotes?: number
     updatedAt?: Date | string
     question: QuestionCreateNestedOneWithoutAnswersInput
   }
@@ -8832,6 +8904,8 @@ export namespace Prisma {
     content: string
     questionId: number
     createdAt?: Date | string
+    upvotes?: number
+    downvotes?: number
     updatedAt?: Date | string
   }
 
@@ -8925,6 +8999,8 @@ export namespace Prisma {
     userId?: IntFilter<"Answer"> | number
     questionId?: IntFilter<"Answer"> | number
     createdAt?: DateTimeFilter<"Answer"> | Date | string
+    upvotes?: IntFilter<"Answer"> | number
+    downvotes?: IntFilter<"Answer"> | number
     updatedAt?: DateTimeFilter<"Answer"> | Date | string
   }
 
@@ -8985,6 +9061,8 @@ export namespace Prisma {
   export type AnswerCreateWithoutQuestionInput = {
     content: string
     createdAt?: Date | string
+    upvotes?: number
+    downvotes?: number
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutAnswersInput
   }
@@ -8994,6 +9072,8 @@ export namespace Prisma {
     content: string
     userId: number
     createdAt?: Date | string
+    upvotes?: number
+    downvotes?: number
     updatedAt?: Date | string
   }
 
@@ -9443,6 +9523,8 @@ export namespace Prisma {
     content: string
     questionId: number
     createdAt?: Date | string
+    upvotes?: number
+    downvotes?: number
     updatedAt?: Date | string
   }
 
@@ -9492,6 +9574,8 @@ export namespace Prisma {
   export type AnswerUpdateWithoutUserInput = {
     content?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    upvotes?: IntFieldUpdateOperationsInput | number
+    downvotes?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     question?: QuestionUpdateOneRequiredWithoutAnswersNestedInput
   }
@@ -9501,6 +9585,8 @@ export namespace Prisma {
     content?: StringFieldUpdateOperationsInput | string
     questionId?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    upvotes?: IntFieldUpdateOperationsInput | number
+    downvotes?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -9509,6 +9595,8 @@ export namespace Prisma {
     content?: StringFieldUpdateOperationsInput | string
     questionId?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    upvotes?: IntFieldUpdateOperationsInput | number
+    downvotes?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -9540,6 +9628,8 @@ export namespace Prisma {
     content: string
     userId: number
     createdAt?: Date | string
+    upvotes?: number
+    downvotes?: number
     updatedAt?: Date | string
   }
 
@@ -9554,6 +9644,8 @@ export namespace Prisma {
   export type AnswerUpdateWithoutQuestionInput = {
     content?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    upvotes?: IntFieldUpdateOperationsInput | number
+    downvotes?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutAnswersNestedInput
   }
@@ -9563,6 +9655,8 @@ export namespace Prisma {
     content?: StringFieldUpdateOperationsInput | string
     userId?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    upvotes?: IntFieldUpdateOperationsInput | number
+    downvotes?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -9571,6 +9665,8 @@ export namespace Prisma {
     content?: StringFieldUpdateOperationsInput | string
     userId?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    upvotes?: IntFieldUpdateOperationsInput | number
+    downvotes?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

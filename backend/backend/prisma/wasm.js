@@ -151,6 +151,8 @@ exports.Prisma.AnswerScalarFieldEnum = {
   userId: 'userId',
   questionId: 'questionId',
   createdAt: 'createdAt',
+  upvotes: 'upvotes',
+  downvotes: 'downvotes',
   updatedAt: 'updatedAt'
 };
 

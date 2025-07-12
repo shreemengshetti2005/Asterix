@@ -50,6 +50,8 @@ model Answer {
   question    Question    @relation(fields: [questionId], references: [id])
   questionId  Int
   createdAt   DateTime    @default(now())
+  upvotes   Int      @default(0)
+  downvotes Int      @default(0)
   updatedAt   DateTime    @updatedAt
 }
 
