@@ -8,8 +8,8 @@ import axios from "axios";
 import authRoute from "./routes/auth.route";
 import Question_Router from "./routes/Question";
 import Answer_Router from "./routes/Answer.route";
-import { ensureCollectionExists } from "./db/vectordb";
-
+// import { ensureCollectionExists } from "./db/vectordb";
+import { createCollection } from "./db/vectordb";
 
 const PORT=process.env.PORT ||3000;
 const START_URL=process.env.START_URL || "/api/v1";
@@ -22,7 +22,8 @@ app.use(`${START_URL}/auth`,authRoute);
 app.use(`${START_URL}/question`,Question_Router);
 app.use(`${START_URL}/answer`,Answer_Router)
 app.listen(PORT,async()=>{
-      await ensureCollectionExists()
+    await createCollection()
+    //   await ensureCollectionExists()
     console.log(`listening on port ${PORT}`)
 })
 

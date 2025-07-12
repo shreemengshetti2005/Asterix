@@ -2,8 +2,8 @@ import { Request, Response } from 'express'
 
 import { createQuestionSchema } from '../helpers/Interface'
 import client from '../db/db'
-import { COLLECTION_NAME } from '../db/vectordb'
-import { chroma } from '../db/vectordb'
+import { collection, COLLECTION_NAME } from '../db/vectordb'
+// import { chroma } from '../db/vectordb'
 import { generateEmbeddingFromGemini } from '../helpers/vector'
 import { uploadToChroma } from '../helpers/vector'
 
@@ -255,34 +255,35 @@ export const searchQuestions = async (req: Request, res: Response) => {
   }
 
   try {
-    // 1. Embed the query string
-    const embedding = await generateEmbeddingFromGemini(query);
-
-    const searchRes = await chroma.post(`/api/v1/collections/${COLLECTION_NAME}/query`, {
-      queries: [embedding],
-      n_results: 20
+    // Step 1: Query ChromaDB using text
+    const results = await collection.query({
+      queryTexts: [query],
+      nResults: 20,
     });
 
-    const ids = searchRes.data?.results?.[0]?.ids || [];
+    const ids = results.ids?.[0] || [];
 
-    if (ids.length === 0) {
+    if (!ids.length) {
       return res.status(200).json({ questions: [] });
     }
 
-    // 3. Fetch full question details from DB
-    const questionIds = ids.map((id: string) => parseInt(id)).filter((id: number) => !isNaN(id));
+    // Step 2: Convert string IDs to numbers
+    const questionIds = ids
+      .map((id: string) => parseInt(id))
+      .filter((id: number) => !isNaN(id));
 
+    // Step 3: Fetch from database
     const questions = await client.question.findMany({
       where: {
-        id: { in: questionIds }
+        id: { in: questionIds },
       },
       include: {
         user: {
           select: {
             id: true,
             username: true,
-            email: true
-          }
+            email: true,
+          },
         },
         tags: true,
         answers: {
@@ -290,15 +291,15 @@ export const searchQuestions = async (req: Request, res: Response) => {
             user: {
               select: {
                 id: true,
-                username: true
-              }
-            }
-          }
-        }
-      }
+                username: true,
+              },
+            },
+          },
+        },
+      },
     });
 
-    // 4. Format response
+    // Step 4: Format response
     const formattedQuestions = questions.map((q) => ({
       id: q.id,
       title: q.title,
@@ -311,12 +312,12 @@ export const searchQuestions = async (req: Request, res: Response) => {
       upvotes: q.upvotes,
       downvotes: q.downvotes,
       createdAt: q.createdAt,
-      updatedAt: q.updatedAt
+      updatedAt: q.updatedAt,
     }));
 
     return res.status(200).json({ questions: formattedQuestions });
   } catch (err) {
-    console.error(err);
+    console.error('Search error:', err);
     return res.status(500).json({ error: 'Search failed. Please try again.' });
   }
 };

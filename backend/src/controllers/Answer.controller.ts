@@ -137,103 +137,119 @@ export const submitAnswer = async (req:Request, res:Response) => {
 
 
 
-export const upvoteAnswer = async (req:Request, res:Response) => {
+export const upvoteAnswer = async (req: Request, res: Response) => {
   const { answerid } = req.body;
-  if(!req.userId){
-    return
+  if(!req.userId)return;
+  const userId = parseInt(req.userId);
+
+  if (!userId || !answerid) {
+    return res.status(400).json({ error: "Missing userId or answerId." });
   }
-  const voterId = parseInt(req.userId);
 
   try {
-    const answer = await client.answer.findUnique({
+    const existingVote = await client.answerVote.findUnique({
+      where: {
+        userId_answerId: {
+          userId,
+          answerId: parseInt(answerid),
+        },
+      },
+    });
+
+    if (existingVote) {
+      return res.status(400).json({ error: "You have already voted on this answer." });
+    }
+
+    const answer = await client.answer.update({
       where: { id: parseInt(answerid) },
-      include: { user: true, question: true },
-    });
-
-    if (!answer) {
-      return res.status(404).json({ error: 'Answer not found.' });
-    }
-
-    const voter = await client.user.findUnique({
-      where: { id: voterId },
-    });
-
-    if (!voter) {
-      return res.status(404).json({ error: 'User not found.' });
-    }
-
-    const updatedAnswer = await client.answer.update({
-      where: { id: answer.id },
       data: {
-        upvotes: answer.upvotes + 1,
+        upvotes: { increment: 1 },
+        votes: {
+          create: {
+            userId,
+            type: "UPVOTE",
+          },
+        },
+      },
+      include: {
+        question: true,
+        user: true,
       },
     });
 
     await client.notification.create({
       data: {
         userId: answer.userId,
-        message: `${voter.username} upvoted your answer to the question "${answer.question.title}"`,
+        message: `${'Someone'} upvoted your answer to "${answer.question.title}"`,
       },
     });
 
     return res.status(200).json({
       success: true,
-      message: 'Answer upvoted successfully.',
-      answer: updatedAnswer,
+      message: "Answer upvoted.",
+      answer,
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: 'Internal server error.' });
+    return res.status(500).json({ error: "Server error." });
   }
 };
 
 
-export const downvoteAnswer = async (req:Request, res:Response) => {
+export const downvoteAnswer = async (req: Request, res: Response) => {
   const { answerid } = req.body;
-  if(!req.userId){
-    return
+  if(!req.userId)return;
+  const userId = parseInt(req.userId);
+
+  if (!userId || !answerid) {
+    return res.status(400).json({ error: "Missing userId or answerId." });
   }
-  const voterId = parseInt(req.userId);
 
   try {
-    const answer = await client.answer.findUnique({
+    const existingVote = await client.answerVote.findUnique({
+      where: {
+        userId_answerId: {
+          userId,
+          answerId: parseInt(answerid),
+        },
+      },
+    });
+
+    if (existingVote) {
+      return res.status(400).json({ error: "You have already voted on this answer." });
+    }
+
+    const answer = await client.answer.update({
       where: { id: parseInt(answerid) },
-      include: { user: true, question: true },
-    });
-
-    if (!answer) {
-      return res.status(404).json({ error: 'Answer not found.' });
-    }
-
-    const voter = await client.user.findUnique({
-      where: { id: voterId },
-    });
-
-    if (!voter) {
-      return res.status(404).json({ error: 'User not found.' });
-    }
-
-    const updatedAnswer = await client.answer.update({
-      where: { id: answer.id },
       data: {
-        downvotes: answer.downvotes + 1,
+        downvotes: { increment: 1 },
+        votes: {
+          create: {
+            userId,
+            type: "DOWNVOTE",
+          },
+        },
+      },
+      include: {
+        question: true,
+        user: true,
       },
     });
 
     await client.notification.create({
       data: {
         userId: answer.userId,
-        message: `${voter.username} downvoted your answer to the question "${answer.question.title}"`,
+        message: `${ 'Someone'} downvoted your answer to "${answer.question.title}"`,
       },
     });
 
     return res.status(200).json({
       success: true,
-      message: 'Answer downvoted successfully.',
-      answer: updatedAnswer,
+      message: "Answer downvoted.",
+      answer,
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: 'Internal server error.' });
+    return res.status(500).json({ error: "Server error." });
   }
 };

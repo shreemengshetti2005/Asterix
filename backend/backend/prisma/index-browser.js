@@ -150,9 +150,9 @@ exports.Prisma.AnswerScalarFieldEnum = {
   content: 'content',
   userId: 'userId',
   questionId: 'questionId',
-  createdAt: 'createdAt',
   upvotes: 'upvotes',
   downvotes: 'downvotes',
+  createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
@@ -162,6 +162,14 @@ exports.Prisma.NotificationScalarFieldEnum = {
   userId: 'userId',
   questionId: 'questionId',
   isRead: 'isRead',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.AnswerVoteScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  answerId: 'answerId',
+  type: 'type',
   createdAt: 'createdAt'
 };
 
@@ -179,14 +187,18 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
-
+exports.VoteType = exports.$Enums.VoteType = {
+  UPVOTE: 'UPVOTE',
+  DOWNVOTE: 'DOWNVOTE'
+};
 
 exports.Prisma.ModelName = {
   User: 'User',
   Question: 'Question',
   Tag: 'Tag',
   Answer: 'Answer',
-  Notification: 'Notification'
+  Notification: 'Notification',
+  AnswerVote: 'AnswerVote'
 };
 
 /**

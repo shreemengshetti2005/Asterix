@@ -16,6 +16,7 @@ model User {
   questions     Question[] // One user can ask many questions
   answers       Answer[] // One user can write many answers
   notifications Notification[] // One user can receive many notifications
+  answerVotes   AnswerVote[] // ➕ User's votes on answers
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 }
@@ -29,7 +30,7 @@ model Question {
   user          User           @relation(fields: [userId], references: [id])
   userId        Int
   answers       Answer[]
-  tags          Tag[]          @relation("QuestionTags") // ✅ remove references
+  tags          Tag[]          @relation("QuestionTags")
   notifications Notification[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -38,20 +39,21 @@ model Question {
 model Tag {
   id        Int        @id @default(autoincrement())
   name      String     @unique
-  questions Question[] @relation("QuestionTags") // ✅ same relation name, no references
+  questions Question[] @relation("QuestionTags")
 }
 
 model Answer {
-  id         Int      @id @default(autoincrement())
+  id         Int          @id @default(autoincrement())
   content    String
-  user       User     @relation(fields: [userId], references: [id])
+  user       User         @relation(fields: [userId], references: [id])
   userId     Int
-  question   Question @relation(fields: [questionId], references: [id])
+  question   Question     @relation(fields: [questionId], references: [id])
   questionId Int
-  createdAt  DateTime @default(now())
-  upvotes    Int      @default(0)
-  downvotes  Int      @default(0)
-  updatedAt  DateTime @updatedAt
+  upvotes    Int          @default(0)
+  downvotes  Int          @default(0)
+  votes      AnswerVote[] // ➕ all votes on this answer
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
 }
 
 model Notification {
@@ -63,4 +65,21 @@ model Notification {
   questionId Int?
   isRead     Boolean   @default(false)
   createdAt  DateTime  @default(now())
+}
+
+model AnswerVote {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  answer    Answer   @relation(fields: [answerId], references: [id])
+  answerId  Int
+  type      VoteType
+  createdAt DateTime @default(now())
+
+  @@unique([userId, answerId]) // ⛔ Prevents duplicate voting
+}
+
+enum VoteType {
+  UPVOTE
+  DOWNVOTE
 }

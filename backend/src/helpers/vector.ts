@@ -6,7 +6,8 @@ const chroma = axios.create({
 })
 import { GoogleGenAI } from "@google/genai";
 import { GEMINI_API_KEY } from "./dotenv";
-
+import { createCollection } from "../db/vectordb";
+import { collection } from "../db/vectordb";
 
 
 export const generateEmbeddingFromGemini=async(text:string)=>{
@@ -21,14 +22,13 @@ export const generateEmbeddingFromGemini=async(text:string)=>{
     });
     return response.embeddings;
 }
-export const uploadToChroma = async (id:string, text: string) => {
-  const embedding = await generateEmbeddingFromGemini(text)
+export async function uploadToChroma(id: string, text: string) {
+  if (!collection) await createCollection();
 
-  const res = await chroma.post(`/api/v1/collections/${COLLECTION_NAME}/add`, {
+  await collection.add({
     ids: [id],
-    embeddings: [embedding],
-    documents: [text]
-  })
+    documents: [text],
+  });
 
-  return res.data
+  console.log(`✅ Uploaded doc "${id}"`);
 }

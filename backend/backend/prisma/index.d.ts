@@ -38,6 +38,28 @@ export type Answer = $Result.DefaultSelection<Prisma.$AnswerPayload>
  * 
  */
 export type Notification = $Result.DefaultSelection<Prisma.$NotificationPayload>
+/**
+ * Model AnswerVote
+ * 
+ */
+export type AnswerVote = $Result.DefaultSelection<Prisma.$AnswerVotePayload>
+
+/**
+ * Enums
+ */
+export namespace $Enums {
+  export const VoteType: {
+  UPVOTE: 'UPVOTE',
+  DOWNVOTE: 'DOWNVOTE'
+};
+
+export type VoteType = (typeof VoteType)[keyof typeof VoteType]
+
+}
+
+export type VoteType = $Enums.VoteType
+
+export const VoteType: typeof $Enums.VoteType
 
 /**
  * ##  Prisma Client ʲˢ
@@ -213,6 +235,16 @@ export class PrismaClient<
     * ```
     */
   get notification(): Prisma.NotificationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.answerVote`: Exposes CRUD operations for the **AnswerVote** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AnswerVotes
+    * const answerVotes = await prisma.answerVote.findMany()
+    * ```
+    */
+  get answerVote(): Prisma.AnswerVoteDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -657,7 +689,8 @@ export namespace Prisma {
     Question: 'Question',
     Tag: 'Tag',
     Answer: 'Answer',
-    Notification: 'Notification'
+    Notification: 'Notification',
+    AnswerVote: 'AnswerVote'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -676,7 +709,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "question" | "tag" | "answer" | "notification"
+      modelProps: "user" | "question" | "tag" | "answer" | "notification" | "answerVote"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1050,6 +1083,80 @@ export namespace Prisma {
           }
         }
       }
+      AnswerVote: {
+        payload: Prisma.$AnswerVotePayload<ExtArgs>
+        fields: Prisma.AnswerVoteFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AnswerVoteFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnswerVotePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AnswerVoteFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnswerVotePayload>
+          }
+          findFirst: {
+            args: Prisma.AnswerVoteFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnswerVotePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AnswerVoteFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnswerVotePayload>
+          }
+          findMany: {
+            args: Prisma.AnswerVoteFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnswerVotePayload>[]
+          }
+          create: {
+            args: Prisma.AnswerVoteCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnswerVotePayload>
+          }
+          createMany: {
+            args: Prisma.AnswerVoteCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AnswerVoteCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnswerVotePayload>[]
+          }
+          delete: {
+            args: Prisma.AnswerVoteDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnswerVotePayload>
+          }
+          update: {
+            args: Prisma.AnswerVoteUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnswerVotePayload>
+          }
+          deleteMany: {
+            args: Prisma.AnswerVoteDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AnswerVoteUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AnswerVoteUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnswerVotePayload>[]
+          }
+          upsert: {
+            args: Prisma.AnswerVoteUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnswerVotePayload>
+          }
+          aggregate: {
+            args: Prisma.AnswerVoteAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAnswerVote>
+          }
+          groupBy: {
+            args: Prisma.AnswerVoteGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AnswerVoteGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AnswerVoteCountArgs<ExtArgs>
+            result: $Utils.Optional<AnswerVoteCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1139,6 +1246,7 @@ export namespace Prisma {
     tag?: TagOmit
     answer?: AnswerOmit
     notification?: NotificationOmit
+    answerVote?: AnswerVoteOmit
   }
 
   /* Types for Logging */
@@ -1236,12 +1344,14 @@ export namespace Prisma {
     questions: number
     answers: number
     notifications: number
+    answerVotes: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     questions?: boolean | UserCountOutputTypeCountQuestionsArgs
     answers?: boolean | UserCountOutputTypeCountAnswersArgs
     notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
+    answerVotes?: boolean | UserCountOutputTypeCountAnswerVotesArgs
   }
 
   // Custom InputTypes
@@ -1274,6 +1384,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountNotificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: NotificationWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAnswerVotesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AnswerVoteWhereInput
   }
 
 
@@ -1354,6 +1471,37 @@ export namespace Prisma {
    */
   export type TagCountOutputTypeCountQuestionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: QuestionWhereInput
+  }
+
+
+  /**
+   * Count Type AnswerCountOutputType
+   */
+
+  export type AnswerCountOutputType = {
+    votes: number
+  }
+
+  export type AnswerCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    votes?: boolean | AnswerCountOutputTypeCountVotesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AnswerCountOutputType without action
+   */
+  export type AnswerCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnswerCountOutputType
+     */
+    select?: AnswerCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AnswerCountOutputType without action
+   */
+  export type AnswerCountOutputTypeCountVotesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AnswerVoteWhereInput
   }
 
 
@@ -1570,6 +1718,7 @@ export namespace Prisma {
     questions?: boolean | User$questionsArgs<ExtArgs>
     answers?: boolean | User$answersArgs<ExtArgs>
     notifications?: boolean | User$notificationsArgs<ExtArgs>
+    answerVotes?: boolean | User$answerVotesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1605,6 +1754,7 @@ export namespace Prisma {
     questions?: boolean | User$questionsArgs<ExtArgs>
     answers?: boolean | User$answersArgs<ExtArgs>
     notifications?: boolean | User$notificationsArgs<ExtArgs>
+    answerVotes?: boolean | User$answerVotesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1616,6 +1766,7 @@ export namespace Prisma {
       questions: Prisma.$QuestionPayload<ExtArgs>[]
       answers: Prisma.$AnswerPayload<ExtArgs>[]
       notifications: Prisma.$NotificationPayload<ExtArgs>[]
+      answerVotes: Prisma.$AnswerVotePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -2021,6 +2172,7 @@ export namespace Prisma {
     questions<T extends User$questionsArgs<ExtArgs> = {}>(args?: Subset<T, User$questionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$QuestionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     answers<T extends User$answersArgs<ExtArgs> = {}>(args?: Subset<T, User$answersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnswerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notifications<T extends User$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    answerVotes<T extends User$answerVotesArgs<ExtArgs> = {}>(args?: Subset<T, User$answerVotesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnswerVotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2513,6 +2665,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+  }
+
+  /**
+   * User.answerVotes
+   */
+  export type User$answerVotesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnswerVote
+     */
+    select?: AnswerVoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnswerVote
+     */
+    omit?: AnswerVoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnswerVoteInclude<ExtArgs> | null
+    where?: AnswerVoteWhereInput
+    orderBy?: AnswerVoteOrderByWithRelationInput | AnswerVoteOrderByWithRelationInput[]
+    cursor?: AnswerVoteWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AnswerVoteScalarFieldEnum | AnswerVoteScalarFieldEnum[]
   }
 
   /**
@@ -4861,9 +5037,9 @@ export namespace Prisma {
     content: string | null
     userId: number | null
     questionId: number | null
-    createdAt: Date | null
     upvotes: number | null
     downvotes: number | null
+    createdAt: Date | null
     updatedAt: Date | null
   }
 
@@ -4872,9 +5048,9 @@ export namespace Prisma {
     content: string | null
     userId: number | null
     questionId: number | null
-    createdAt: Date | null
     upvotes: number | null
     downvotes: number | null
+    createdAt: Date | null
     updatedAt: Date | null
   }
 
@@ -4883,9 +5059,9 @@ export namespace Prisma {
     content: number
     userId: number
     questionId: number
-    createdAt: number
     upvotes: number
     downvotes: number
+    createdAt: number
     updatedAt: number
     _all: number
   }
@@ -4912,9 +5088,9 @@ export namespace Prisma {
     content?: true
     userId?: true
     questionId?: true
-    createdAt?: true
     upvotes?: true
     downvotes?: true
+    createdAt?: true
     updatedAt?: true
   }
 
@@ -4923,9 +5099,9 @@ export namespace Prisma {
     content?: true
     userId?: true
     questionId?: true
-    createdAt?: true
     upvotes?: true
     downvotes?: true
+    createdAt?: true
     updatedAt?: true
   }
 
@@ -4934,9 +5110,9 @@ export namespace Prisma {
     content?: true
     userId?: true
     questionId?: true
-    createdAt?: true
     upvotes?: true
     downvotes?: true
+    createdAt?: true
     updatedAt?: true
     _all?: true
   }
@@ -5032,9 +5208,9 @@ export namespace Prisma {
     content: string
     userId: number
     questionId: number
-    createdAt: Date
     upvotes: number
     downvotes: number
+    createdAt: Date
     updatedAt: Date
     _count: AnswerCountAggregateOutputType | null
     _avg: AnswerAvgAggregateOutputType | null
@@ -5062,12 +5238,14 @@ export namespace Prisma {
     content?: boolean
     userId?: boolean
     questionId?: boolean
-    createdAt?: boolean
     upvotes?: boolean
     downvotes?: boolean
+    createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     question?: boolean | QuestionDefaultArgs<ExtArgs>
+    votes?: boolean | Answer$votesArgs<ExtArgs>
+    _count?: boolean | AnswerCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["answer"]>
 
   export type AnswerSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -5075,9 +5253,9 @@ export namespace Prisma {
     content?: boolean
     userId?: boolean
     questionId?: boolean
-    createdAt?: boolean
     upvotes?: boolean
     downvotes?: boolean
+    createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     question?: boolean | QuestionDefaultArgs<ExtArgs>
@@ -5088,9 +5266,9 @@ export namespace Prisma {
     content?: boolean
     userId?: boolean
     questionId?: boolean
-    createdAt?: boolean
     upvotes?: boolean
     downvotes?: boolean
+    createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     question?: boolean | QuestionDefaultArgs<ExtArgs>
@@ -5101,16 +5279,18 @@ export namespace Prisma {
     content?: boolean
     userId?: boolean
     questionId?: boolean
-    createdAt?: boolean
     upvotes?: boolean
     downvotes?: boolean
+    createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type AnswerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "content" | "userId" | "questionId" | "createdAt" | "upvotes" | "downvotes" | "updatedAt", ExtArgs["result"]["answer"]>
+  export type AnswerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "content" | "userId" | "questionId" | "upvotes" | "downvotes" | "createdAt" | "updatedAt", ExtArgs["result"]["answer"]>
   export type AnswerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     question?: boolean | QuestionDefaultArgs<ExtArgs>
+    votes?: boolean | Answer$votesArgs<ExtArgs>
+    _count?: boolean | AnswerCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type AnswerIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -5126,15 +5306,16 @@ export namespace Prisma {
     objects: {
       user: Prisma.$UserPayload<ExtArgs>
       question: Prisma.$QuestionPayload<ExtArgs>
+      votes: Prisma.$AnswerVotePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
       content: string
       userId: number
       questionId: number
-      createdAt: Date
       upvotes: number
       downvotes: number
+      createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["answer"]>
     composites: {}
@@ -5532,6 +5713,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     question<T extends QuestionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, QuestionDefaultArgs<ExtArgs>>): Prisma__QuestionClient<$Result.GetResult<Prisma.$QuestionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    votes<T extends Answer$votesArgs<ExtArgs> = {}>(args?: Subset<T, Answer$votesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnswerVotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5565,9 +5747,9 @@ export namespace Prisma {
     readonly content: FieldRef<"Answer", 'String'>
     readonly userId: FieldRef<"Answer", 'Int'>
     readonly questionId: FieldRef<"Answer", 'Int'>
-    readonly createdAt: FieldRef<"Answer", 'DateTime'>
     readonly upvotes: FieldRef<"Answer", 'Int'>
     readonly downvotes: FieldRef<"Answer", 'Int'>
+    readonly createdAt: FieldRef<"Answer", 'DateTime'>
     readonly updatedAt: FieldRef<"Answer", 'DateTime'>
   }
     
@@ -5962,6 +6144,30 @@ export namespace Prisma {
      * Limit how many Answers to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Answer.votes
+   */
+  export type Answer$votesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnswerVote
+     */
+    select?: AnswerVoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnswerVote
+     */
+    omit?: AnswerVoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnswerVoteInclude<ExtArgs> | null
+    where?: AnswerVoteWhereInput
+    orderBy?: AnswerVoteOrderByWithRelationInput | AnswerVoteOrderByWithRelationInput[]
+    cursor?: AnswerVoteWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AnswerVoteScalarFieldEnum | AnswerVoteScalarFieldEnum[]
   }
 
   /**
@@ -7124,6 +7330,1114 @@ export namespace Prisma {
 
 
   /**
+   * Model AnswerVote
+   */
+
+  export type AggregateAnswerVote = {
+    _count: AnswerVoteCountAggregateOutputType | null
+    _avg: AnswerVoteAvgAggregateOutputType | null
+    _sum: AnswerVoteSumAggregateOutputType | null
+    _min: AnswerVoteMinAggregateOutputType | null
+    _max: AnswerVoteMaxAggregateOutputType | null
+  }
+
+  export type AnswerVoteAvgAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    answerId: number | null
+  }
+
+  export type AnswerVoteSumAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    answerId: number | null
+  }
+
+  export type AnswerVoteMinAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    answerId: number | null
+    type: $Enums.VoteType | null
+    createdAt: Date | null
+  }
+
+  export type AnswerVoteMaxAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    answerId: number | null
+    type: $Enums.VoteType | null
+    createdAt: Date | null
+  }
+
+  export type AnswerVoteCountAggregateOutputType = {
+    id: number
+    userId: number
+    answerId: number
+    type: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AnswerVoteAvgAggregateInputType = {
+    id?: true
+    userId?: true
+    answerId?: true
+  }
+
+  export type AnswerVoteSumAggregateInputType = {
+    id?: true
+    userId?: true
+    answerId?: true
+  }
+
+  export type AnswerVoteMinAggregateInputType = {
+    id?: true
+    userId?: true
+    answerId?: true
+    type?: true
+    createdAt?: true
+  }
+
+  export type AnswerVoteMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    answerId?: true
+    type?: true
+    createdAt?: true
+  }
+
+  export type AnswerVoteCountAggregateInputType = {
+    id?: true
+    userId?: true
+    answerId?: true
+    type?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AnswerVoteAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AnswerVote to aggregate.
+     */
+    where?: AnswerVoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnswerVotes to fetch.
+     */
+    orderBy?: AnswerVoteOrderByWithRelationInput | AnswerVoteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AnswerVoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnswerVotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnswerVotes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AnswerVotes
+    **/
+    _count?: true | AnswerVoteCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AnswerVoteAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AnswerVoteSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AnswerVoteMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AnswerVoteMaxAggregateInputType
+  }
+
+  export type GetAnswerVoteAggregateType<T extends AnswerVoteAggregateArgs> = {
+        [P in keyof T & keyof AggregateAnswerVote]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAnswerVote[P]>
+      : GetScalarType<T[P], AggregateAnswerVote[P]>
+  }
+
+
+
+
+  export type AnswerVoteGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AnswerVoteWhereInput
+    orderBy?: AnswerVoteOrderByWithAggregationInput | AnswerVoteOrderByWithAggregationInput[]
+    by: AnswerVoteScalarFieldEnum[] | AnswerVoteScalarFieldEnum
+    having?: AnswerVoteScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AnswerVoteCountAggregateInputType | true
+    _avg?: AnswerVoteAvgAggregateInputType
+    _sum?: AnswerVoteSumAggregateInputType
+    _min?: AnswerVoteMinAggregateInputType
+    _max?: AnswerVoteMaxAggregateInputType
+  }
+
+  export type AnswerVoteGroupByOutputType = {
+    id: number
+    userId: number
+    answerId: number
+    type: $Enums.VoteType
+    createdAt: Date
+    _count: AnswerVoteCountAggregateOutputType | null
+    _avg: AnswerVoteAvgAggregateOutputType | null
+    _sum: AnswerVoteSumAggregateOutputType | null
+    _min: AnswerVoteMinAggregateOutputType | null
+    _max: AnswerVoteMaxAggregateOutputType | null
+  }
+
+  type GetAnswerVoteGroupByPayload<T extends AnswerVoteGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AnswerVoteGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AnswerVoteGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AnswerVoteGroupByOutputType[P]>
+            : GetScalarType<T[P], AnswerVoteGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AnswerVoteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    answerId?: boolean
+    type?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    answer?: boolean | AnswerDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["answerVote"]>
+
+  export type AnswerVoteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    answerId?: boolean
+    type?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    answer?: boolean | AnswerDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["answerVote"]>
+
+  export type AnswerVoteSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    answerId?: boolean
+    type?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    answer?: boolean | AnswerDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["answerVote"]>
+
+  export type AnswerVoteSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    answerId?: boolean
+    type?: boolean
+    createdAt?: boolean
+  }
+
+  export type AnswerVoteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "answerId" | "type" | "createdAt", ExtArgs["result"]["answerVote"]>
+  export type AnswerVoteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    answer?: boolean | AnswerDefaultArgs<ExtArgs>
+  }
+  export type AnswerVoteIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    answer?: boolean | AnswerDefaultArgs<ExtArgs>
+  }
+  export type AnswerVoteIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    answer?: boolean | AnswerDefaultArgs<ExtArgs>
+  }
+
+  export type $AnswerVotePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AnswerVote"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      answer: Prisma.$AnswerPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      userId: number
+      answerId: number
+      type: $Enums.VoteType
+      createdAt: Date
+    }, ExtArgs["result"]["answerVote"]>
+    composites: {}
+  }
+
+  type AnswerVoteGetPayload<S extends boolean | null | undefined | AnswerVoteDefaultArgs> = $Result.GetResult<Prisma.$AnswerVotePayload, S>
+
+  type AnswerVoteCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AnswerVoteFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AnswerVoteCountAggregateInputType | true
+    }
+
+  export interface AnswerVoteDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AnswerVote'], meta: { name: 'AnswerVote' } }
+    /**
+     * Find zero or one AnswerVote that matches the filter.
+     * @param {AnswerVoteFindUniqueArgs} args - Arguments to find a AnswerVote
+     * @example
+     * // Get one AnswerVote
+     * const answerVote = await prisma.answerVote.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AnswerVoteFindUniqueArgs>(args: SelectSubset<T, AnswerVoteFindUniqueArgs<ExtArgs>>): Prisma__AnswerVoteClient<$Result.GetResult<Prisma.$AnswerVotePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AnswerVote that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AnswerVoteFindUniqueOrThrowArgs} args - Arguments to find a AnswerVote
+     * @example
+     * // Get one AnswerVote
+     * const answerVote = await prisma.answerVote.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AnswerVoteFindUniqueOrThrowArgs>(args: SelectSubset<T, AnswerVoteFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AnswerVoteClient<$Result.GetResult<Prisma.$AnswerVotePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AnswerVote that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnswerVoteFindFirstArgs} args - Arguments to find a AnswerVote
+     * @example
+     * // Get one AnswerVote
+     * const answerVote = await prisma.answerVote.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AnswerVoteFindFirstArgs>(args?: SelectSubset<T, AnswerVoteFindFirstArgs<ExtArgs>>): Prisma__AnswerVoteClient<$Result.GetResult<Prisma.$AnswerVotePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AnswerVote that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnswerVoteFindFirstOrThrowArgs} args - Arguments to find a AnswerVote
+     * @example
+     * // Get one AnswerVote
+     * const answerVote = await prisma.answerVote.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AnswerVoteFindFirstOrThrowArgs>(args?: SelectSubset<T, AnswerVoteFindFirstOrThrowArgs<ExtArgs>>): Prisma__AnswerVoteClient<$Result.GetResult<Prisma.$AnswerVotePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AnswerVotes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnswerVoteFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AnswerVotes
+     * const answerVotes = await prisma.answerVote.findMany()
+     * 
+     * // Get first 10 AnswerVotes
+     * const answerVotes = await prisma.answerVote.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const answerVoteWithIdOnly = await prisma.answerVote.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AnswerVoteFindManyArgs>(args?: SelectSubset<T, AnswerVoteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnswerVotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AnswerVote.
+     * @param {AnswerVoteCreateArgs} args - Arguments to create a AnswerVote.
+     * @example
+     * // Create one AnswerVote
+     * const AnswerVote = await prisma.answerVote.create({
+     *   data: {
+     *     // ... data to create a AnswerVote
+     *   }
+     * })
+     * 
+     */
+    create<T extends AnswerVoteCreateArgs>(args: SelectSubset<T, AnswerVoteCreateArgs<ExtArgs>>): Prisma__AnswerVoteClient<$Result.GetResult<Prisma.$AnswerVotePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AnswerVotes.
+     * @param {AnswerVoteCreateManyArgs} args - Arguments to create many AnswerVotes.
+     * @example
+     * // Create many AnswerVotes
+     * const answerVote = await prisma.answerVote.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AnswerVoteCreateManyArgs>(args?: SelectSubset<T, AnswerVoteCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AnswerVotes and returns the data saved in the database.
+     * @param {AnswerVoteCreateManyAndReturnArgs} args - Arguments to create many AnswerVotes.
+     * @example
+     * // Create many AnswerVotes
+     * const answerVote = await prisma.answerVote.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AnswerVotes and only return the `id`
+     * const answerVoteWithIdOnly = await prisma.answerVote.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AnswerVoteCreateManyAndReturnArgs>(args?: SelectSubset<T, AnswerVoteCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnswerVotePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AnswerVote.
+     * @param {AnswerVoteDeleteArgs} args - Arguments to delete one AnswerVote.
+     * @example
+     * // Delete one AnswerVote
+     * const AnswerVote = await prisma.answerVote.delete({
+     *   where: {
+     *     // ... filter to delete one AnswerVote
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AnswerVoteDeleteArgs>(args: SelectSubset<T, AnswerVoteDeleteArgs<ExtArgs>>): Prisma__AnswerVoteClient<$Result.GetResult<Prisma.$AnswerVotePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AnswerVote.
+     * @param {AnswerVoteUpdateArgs} args - Arguments to update one AnswerVote.
+     * @example
+     * // Update one AnswerVote
+     * const answerVote = await prisma.answerVote.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AnswerVoteUpdateArgs>(args: SelectSubset<T, AnswerVoteUpdateArgs<ExtArgs>>): Prisma__AnswerVoteClient<$Result.GetResult<Prisma.$AnswerVotePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AnswerVotes.
+     * @param {AnswerVoteDeleteManyArgs} args - Arguments to filter AnswerVotes to delete.
+     * @example
+     * // Delete a few AnswerVotes
+     * const { count } = await prisma.answerVote.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AnswerVoteDeleteManyArgs>(args?: SelectSubset<T, AnswerVoteDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AnswerVotes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnswerVoteUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AnswerVotes
+     * const answerVote = await prisma.answerVote.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AnswerVoteUpdateManyArgs>(args: SelectSubset<T, AnswerVoteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AnswerVotes and returns the data updated in the database.
+     * @param {AnswerVoteUpdateManyAndReturnArgs} args - Arguments to update many AnswerVotes.
+     * @example
+     * // Update many AnswerVotes
+     * const answerVote = await prisma.answerVote.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AnswerVotes and only return the `id`
+     * const answerVoteWithIdOnly = await prisma.answerVote.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AnswerVoteUpdateManyAndReturnArgs>(args: SelectSubset<T, AnswerVoteUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnswerVotePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AnswerVote.
+     * @param {AnswerVoteUpsertArgs} args - Arguments to update or create a AnswerVote.
+     * @example
+     * // Update or create a AnswerVote
+     * const answerVote = await prisma.answerVote.upsert({
+     *   create: {
+     *     // ... data to create a AnswerVote
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AnswerVote we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AnswerVoteUpsertArgs>(args: SelectSubset<T, AnswerVoteUpsertArgs<ExtArgs>>): Prisma__AnswerVoteClient<$Result.GetResult<Prisma.$AnswerVotePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AnswerVotes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnswerVoteCountArgs} args - Arguments to filter AnswerVotes to count.
+     * @example
+     * // Count the number of AnswerVotes
+     * const count = await prisma.answerVote.count({
+     *   where: {
+     *     // ... the filter for the AnswerVotes we want to count
+     *   }
+     * })
+    **/
+    count<T extends AnswerVoteCountArgs>(
+      args?: Subset<T, AnswerVoteCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AnswerVoteCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AnswerVote.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnswerVoteAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AnswerVoteAggregateArgs>(args: Subset<T, AnswerVoteAggregateArgs>): Prisma.PrismaPromise<GetAnswerVoteAggregateType<T>>
+
+    /**
+     * Group by AnswerVote.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnswerVoteGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AnswerVoteGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AnswerVoteGroupByArgs['orderBy'] }
+        : { orderBy?: AnswerVoteGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AnswerVoteGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAnswerVoteGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AnswerVote model
+   */
+  readonly fields: AnswerVoteFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AnswerVote.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AnswerVoteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    answer<T extends AnswerDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AnswerDefaultArgs<ExtArgs>>): Prisma__AnswerClient<$Result.GetResult<Prisma.$AnswerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AnswerVote model
+   */
+  interface AnswerVoteFieldRefs {
+    readonly id: FieldRef<"AnswerVote", 'Int'>
+    readonly userId: FieldRef<"AnswerVote", 'Int'>
+    readonly answerId: FieldRef<"AnswerVote", 'Int'>
+    readonly type: FieldRef<"AnswerVote", 'VoteType'>
+    readonly createdAt: FieldRef<"AnswerVote", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AnswerVote findUnique
+   */
+  export type AnswerVoteFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnswerVote
+     */
+    select?: AnswerVoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnswerVote
+     */
+    omit?: AnswerVoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnswerVoteInclude<ExtArgs> | null
+    /**
+     * Filter, which AnswerVote to fetch.
+     */
+    where: AnswerVoteWhereUniqueInput
+  }
+
+  /**
+   * AnswerVote findUniqueOrThrow
+   */
+  export type AnswerVoteFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnswerVote
+     */
+    select?: AnswerVoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnswerVote
+     */
+    omit?: AnswerVoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnswerVoteInclude<ExtArgs> | null
+    /**
+     * Filter, which AnswerVote to fetch.
+     */
+    where: AnswerVoteWhereUniqueInput
+  }
+
+  /**
+   * AnswerVote findFirst
+   */
+  export type AnswerVoteFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnswerVote
+     */
+    select?: AnswerVoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnswerVote
+     */
+    omit?: AnswerVoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnswerVoteInclude<ExtArgs> | null
+    /**
+     * Filter, which AnswerVote to fetch.
+     */
+    where?: AnswerVoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnswerVotes to fetch.
+     */
+    orderBy?: AnswerVoteOrderByWithRelationInput | AnswerVoteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AnswerVotes.
+     */
+    cursor?: AnswerVoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnswerVotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnswerVotes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AnswerVotes.
+     */
+    distinct?: AnswerVoteScalarFieldEnum | AnswerVoteScalarFieldEnum[]
+  }
+
+  /**
+   * AnswerVote findFirstOrThrow
+   */
+  export type AnswerVoteFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnswerVote
+     */
+    select?: AnswerVoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnswerVote
+     */
+    omit?: AnswerVoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnswerVoteInclude<ExtArgs> | null
+    /**
+     * Filter, which AnswerVote to fetch.
+     */
+    where?: AnswerVoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnswerVotes to fetch.
+     */
+    orderBy?: AnswerVoteOrderByWithRelationInput | AnswerVoteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AnswerVotes.
+     */
+    cursor?: AnswerVoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnswerVotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnswerVotes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AnswerVotes.
+     */
+    distinct?: AnswerVoteScalarFieldEnum | AnswerVoteScalarFieldEnum[]
+  }
+
+  /**
+   * AnswerVote findMany
+   */
+  export type AnswerVoteFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnswerVote
+     */
+    select?: AnswerVoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnswerVote
+     */
+    omit?: AnswerVoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnswerVoteInclude<ExtArgs> | null
+    /**
+     * Filter, which AnswerVotes to fetch.
+     */
+    where?: AnswerVoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnswerVotes to fetch.
+     */
+    orderBy?: AnswerVoteOrderByWithRelationInput | AnswerVoteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AnswerVotes.
+     */
+    cursor?: AnswerVoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnswerVotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnswerVotes.
+     */
+    skip?: number
+    distinct?: AnswerVoteScalarFieldEnum | AnswerVoteScalarFieldEnum[]
+  }
+
+  /**
+   * AnswerVote create
+   */
+  export type AnswerVoteCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnswerVote
+     */
+    select?: AnswerVoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnswerVote
+     */
+    omit?: AnswerVoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnswerVoteInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AnswerVote.
+     */
+    data: XOR<AnswerVoteCreateInput, AnswerVoteUncheckedCreateInput>
+  }
+
+  /**
+   * AnswerVote createMany
+   */
+  export type AnswerVoteCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AnswerVotes.
+     */
+    data: AnswerVoteCreateManyInput | AnswerVoteCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AnswerVote createManyAndReturn
+   */
+  export type AnswerVoteCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnswerVote
+     */
+    select?: AnswerVoteSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnswerVote
+     */
+    omit?: AnswerVoteOmit<ExtArgs> | null
+    /**
+     * The data used to create many AnswerVotes.
+     */
+    data: AnswerVoteCreateManyInput | AnswerVoteCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnswerVoteIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AnswerVote update
+   */
+  export type AnswerVoteUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnswerVote
+     */
+    select?: AnswerVoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnswerVote
+     */
+    omit?: AnswerVoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnswerVoteInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AnswerVote.
+     */
+    data: XOR<AnswerVoteUpdateInput, AnswerVoteUncheckedUpdateInput>
+    /**
+     * Choose, which AnswerVote to update.
+     */
+    where: AnswerVoteWhereUniqueInput
+  }
+
+  /**
+   * AnswerVote updateMany
+   */
+  export type AnswerVoteUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AnswerVotes.
+     */
+    data: XOR<AnswerVoteUpdateManyMutationInput, AnswerVoteUncheckedUpdateManyInput>
+    /**
+     * Filter which AnswerVotes to update
+     */
+    where?: AnswerVoteWhereInput
+    /**
+     * Limit how many AnswerVotes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AnswerVote updateManyAndReturn
+   */
+  export type AnswerVoteUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnswerVote
+     */
+    select?: AnswerVoteSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnswerVote
+     */
+    omit?: AnswerVoteOmit<ExtArgs> | null
+    /**
+     * The data used to update AnswerVotes.
+     */
+    data: XOR<AnswerVoteUpdateManyMutationInput, AnswerVoteUncheckedUpdateManyInput>
+    /**
+     * Filter which AnswerVotes to update
+     */
+    where?: AnswerVoteWhereInput
+    /**
+     * Limit how many AnswerVotes to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnswerVoteIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AnswerVote upsert
+   */
+  export type AnswerVoteUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnswerVote
+     */
+    select?: AnswerVoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnswerVote
+     */
+    omit?: AnswerVoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnswerVoteInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AnswerVote to update in case it exists.
+     */
+    where: AnswerVoteWhereUniqueInput
+    /**
+     * In case the AnswerVote found by the `where` argument doesn't exist, create a new AnswerVote with this data.
+     */
+    create: XOR<AnswerVoteCreateInput, AnswerVoteUncheckedCreateInput>
+    /**
+     * In case the AnswerVote was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AnswerVoteUpdateInput, AnswerVoteUncheckedUpdateInput>
+  }
+
+  /**
+   * AnswerVote delete
+   */
+  export type AnswerVoteDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnswerVote
+     */
+    select?: AnswerVoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnswerVote
+     */
+    omit?: AnswerVoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnswerVoteInclude<ExtArgs> | null
+    /**
+     * Filter which AnswerVote to delete.
+     */
+    where: AnswerVoteWhereUniqueInput
+  }
+
+  /**
+   * AnswerVote deleteMany
+   */
+  export type AnswerVoteDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AnswerVotes to delete
+     */
+    where?: AnswerVoteWhereInput
+    /**
+     * Limit how many AnswerVotes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AnswerVote without action
+   */
+  export type AnswerVoteDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnswerVote
+     */
+    select?: AnswerVoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnswerVote
+     */
+    omit?: AnswerVoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnswerVoteInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -7176,9 +8490,9 @@ export namespace Prisma {
     content: 'content',
     userId: 'userId',
     questionId: 'questionId',
-    createdAt: 'createdAt',
     upvotes: 'upvotes',
     downvotes: 'downvotes',
+    createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
@@ -7195,6 +8509,17 @@ export namespace Prisma {
   };
 
   export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
+  export const AnswerVoteScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    answerId: 'answerId',
+    type: 'type',
+    createdAt: 'createdAt'
+  };
+
+  export type AnswerVoteScalarFieldEnum = (typeof AnswerVoteScalarFieldEnum)[keyof typeof AnswerVoteScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -7276,6 +8601,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'VoteType'
+   */
+  export type EnumVoteTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'VoteType'>
+    
+
+
+  /**
+   * Reference to a field of type 'VoteType[]'
+   */
+  export type ListEnumVoteTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'VoteType[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -7305,6 +8644,7 @@ export namespace Prisma {
     questions?: QuestionListRelationFilter
     answers?: AnswerListRelationFilter
     notifications?: NotificationListRelationFilter
+    answerVotes?: AnswerVoteListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -7317,6 +8657,7 @@ export namespace Prisma {
     questions?: QuestionOrderByRelationAggregateInput
     answers?: AnswerOrderByRelationAggregateInput
     notifications?: NotificationOrderByRelationAggregateInput
+    answerVotes?: AnswerVoteOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -7332,6 +8673,7 @@ export namespace Prisma {
     questions?: QuestionListRelationFilter
     answers?: AnswerListRelationFilter
     notifications?: NotificationListRelationFilter
+    answerVotes?: AnswerVoteListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -7491,12 +8833,13 @@ export namespace Prisma {
     content?: StringFilter<"Answer"> | string
     userId?: IntFilter<"Answer"> | number
     questionId?: IntFilter<"Answer"> | number
-    createdAt?: DateTimeFilter<"Answer"> | Date | string
     upvotes?: IntFilter<"Answer"> | number
     downvotes?: IntFilter<"Answer"> | number
+    createdAt?: DateTimeFilter<"Answer"> | Date | string
     updatedAt?: DateTimeFilter<"Answer"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     question?: XOR<QuestionScalarRelationFilter, QuestionWhereInput>
+    votes?: AnswerVoteListRelationFilter
   }
 
   export type AnswerOrderByWithRelationInput = {
@@ -7504,12 +8847,13 @@ export namespace Prisma {
     content?: SortOrder
     userId?: SortOrder
     questionId?: SortOrder
-    createdAt?: SortOrder
     upvotes?: SortOrder
     downvotes?: SortOrder
+    createdAt?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
     question?: QuestionOrderByWithRelationInput
+    votes?: AnswerVoteOrderByRelationAggregateInput
   }
 
   export type AnswerWhereUniqueInput = Prisma.AtLeast<{
@@ -7520,12 +8864,13 @@ export namespace Prisma {
     content?: StringFilter<"Answer"> | string
     userId?: IntFilter<"Answer"> | number
     questionId?: IntFilter<"Answer"> | number
-    createdAt?: DateTimeFilter<"Answer"> | Date | string
     upvotes?: IntFilter<"Answer"> | number
     downvotes?: IntFilter<"Answer"> | number
+    createdAt?: DateTimeFilter<"Answer"> | Date | string
     updatedAt?: DateTimeFilter<"Answer"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     question?: XOR<QuestionScalarRelationFilter, QuestionWhereInput>
+    votes?: AnswerVoteListRelationFilter
   }, "id">
 
   export type AnswerOrderByWithAggregationInput = {
@@ -7533,9 +8878,9 @@ export namespace Prisma {
     content?: SortOrder
     userId?: SortOrder
     questionId?: SortOrder
-    createdAt?: SortOrder
     upvotes?: SortOrder
     downvotes?: SortOrder
+    createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: AnswerCountOrderByAggregateInput
     _avg?: AnswerAvgOrderByAggregateInput
@@ -7552,9 +8897,9 @@ export namespace Prisma {
     content?: StringWithAggregatesFilter<"Answer"> | string
     userId?: IntWithAggregatesFilter<"Answer"> | number
     questionId?: IntWithAggregatesFilter<"Answer"> | number
-    createdAt?: DateTimeWithAggregatesFilter<"Answer"> | Date | string
     upvotes?: IntWithAggregatesFilter<"Answer"> | number
     downvotes?: IntWithAggregatesFilter<"Answer"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"Answer"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Answer"> | Date | string
   }
 
@@ -7623,6 +8968,67 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Notification"> | Date | string
   }
 
+  export type AnswerVoteWhereInput = {
+    AND?: AnswerVoteWhereInput | AnswerVoteWhereInput[]
+    OR?: AnswerVoteWhereInput[]
+    NOT?: AnswerVoteWhereInput | AnswerVoteWhereInput[]
+    id?: IntFilter<"AnswerVote"> | number
+    userId?: IntFilter<"AnswerVote"> | number
+    answerId?: IntFilter<"AnswerVote"> | number
+    type?: EnumVoteTypeFilter<"AnswerVote"> | $Enums.VoteType
+    createdAt?: DateTimeFilter<"AnswerVote"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    answer?: XOR<AnswerScalarRelationFilter, AnswerWhereInput>
+  }
+
+  export type AnswerVoteOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    answerId?: SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    answer?: AnswerOrderByWithRelationInput
+  }
+
+  export type AnswerVoteWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    userId_answerId?: AnswerVoteUserIdAnswerIdCompoundUniqueInput
+    AND?: AnswerVoteWhereInput | AnswerVoteWhereInput[]
+    OR?: AnswerVoteWhereInput[]
+    NOT?: AnswerVoteWhereInput | AnswerVoteWhereInput[]
+    userId?: IntFilter<"AnswerVote"> | number
+    answerId?: IntFilter<"AnswerVote"> | number
+    type?: EnumVoteTypeFilter<"AnswerVote"> | $Enums.VoteType
+    createdAt?: DateTimeFilter<"AnswerVote"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    answer?: XOR<AnswerScalarRelationFilter, AnswerWhereInput>
+  }, "id" | "userId_answerId">
+
+  export type AnswerVoteOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    answerId?: SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
+    _count?: AnswerVoteCountOrderByAggregateInput
+    _avg?: AnswerVoteAvgOrderByAggregateInput
+    _max?: AnswerVoteMaxOrderByAggregateInput
+    _min?: AnswerVoteMinOrderByAggregateInput
+    _sum?: AnswerVoteSumOrderByAggregateInput
+  }
+
+  export type AnswerVoteScalarWhereWithAggregatesInput = {
+    AND?: AnswerVoteScalarWhereWithAggregatesInput | AnswerVoteScalarWhereWithAggregatesInput[]
+    OR?: AnswerVoteScalarWhereWithAggregatesInput[]
+    NOT?: AnswerVoteScalarWhereWithAggregatesInput | AnswerVoteScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"AnswerVote"> | number
+    userId?: IntWithAggregatesFilter<"AnswerVote"> | number
+    answerId?: IntWithAggregatesFilter<"AnswerVote"> | number
+    type?: EnumVoteTypeWithAggregatesFilter<"AnswerVote"> | $Enums.VoteType
+    createdAt?: DateTimeWithAggregatesFilter<"AnswerVote"> | Date | string
+  }
+
   export type UserCreateInput = {
     username: string
     email: string
@@ -7632,6 +9038,7 @@ export namespace Prisma {
     questions?: QuestionCreateNestedManyWithoutUserInput
     answers?: AnswerCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    answerVotes?: AnswerVoteCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -7644,6 +9051,7 @@ export namespace Prisma {
     questions?: QuestionUncheckedCreateNestedManyWithoutUserInput
     answers?: AnswerUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    answerVotes?: AnswerVoteUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -7655,6 +9063,7 @@ export namespace Prisma {
     questions?: QuestionUpdateManyWithoutUserNestedInput
     answers?: AnswerUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    answerVotes?: AnswerVoteUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -7667,6 +9076,7 @@ export namespace Prisma {
     questions?: QuestionUncheckedUpdateManyWithoutUserNestedInput
     answers?: AnswerUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    answerVotes?: AnswerVoteUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -7818,12 +9228,13 @@ export namespace Prisma {
 
   export type AnswerCreateInput = {
     content: string
-    createdAt?: Date | string
     upvotes?: number
     downvotes?: number
+    createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutAnswersInput
     question: QuestionCreateNestedOneWithoutAnswersInput
+    votes?: AnswerVoteCreateNestedManyWithoutAnswerInput
   }
 
   export type AnswerUncheckedCreateInput = {
@@ -7831,20 +9242,22 @@ export namespace Prisma {
     content: string
     userId: number
     questionId: number
-    createdAt?: Date | string
     upvotes?: number
     downvotes?: number
+    createdAt?: Date | string
     updatedAt?: Date | string
+    votes?: AnswerVoteUncheckedCreateNestedManyWithoutAnswerInput
   }
 
   export type AnswerUpdateInput = {
     content?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     upvotes?: IntFieldUpdateOperationsInput | number
     downvotes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutAnswersNestedInput
     question?: QuestionUpdateOneRequiredWithoutAnswersNestedInput
+    votes?: AnswerVoteUpdateManyWithoutAnswerNestedInput
   }
 
   export type AnswerUncheckedUpdateInput = {
@@ -7852,10 +9265,11 @@ export namespace Prisma {
     content?: StringFieldUpdateOperationsInput | string
     userId?: IntFieldUpdateOperationsInput | number
     questionId?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     upvotes?: IntFieldUpdateOperationsInput | number
     downvotes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    votes?: AnswerVoteUncheckedUpdateManyWithoutAnswerNestedInput
   }
 
   export type AnswerCreateManyInput = {
@@ -7863,17 +9277,17 @@ export namespace Prisma {
     content: string
     userId: number
     questionId: number
-    createdAt?: Date | string
     upvotes?: number
     downvotes?: number
+    createdAt?: Date | string
     updatedAt?: Date | string
   }
 
   export type AnswerUpdateManyMutationInput = {
     content?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     upvotes?: IntFieldUpdateOperationsInput | number
     downvotes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -7882,9 +9296,9 @@ export namespace Prisma {
     content?: StringFieldUpdateOperationsInput | string
     userId?: IntFieldUpdateOperationsInput | number
     questionId?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     upvotes?: IntFieldUpdateOperationsInput | number
     downvotes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -7946,6 +9360,57 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AnswerVoteCreateInput = {
+    type: $Enums.VoteType
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutAnswerVotesInput
+    answer: AnswerCreateNestedOneWithoutVotesInput
+  }
+
+  export type AnswerVoteUncheckedCreateInput = {
+    id?: number
+    userId: number
+    answerId: number
+    type: $Enums.VoteType
+    createdAt?: Date | string
+  }
+
+  export type AnswerVoteUpdateInput = {
+    type?: EnumVoteTypeFieldUpdateOperationsInput | $Enums.VoteType
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAnswerVotesNestedInput
+    answer?: AnswerUpdateOneRequiredWithoutVotesNestedInput
+  }
+
+  export type AnswerVoteUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    answerId?: IntFieldUpdateOperationsInput | number
+    type?: EnumVoteTypeFieldUpdateOperationsInput | $Enums.VoteType
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnswerVoteCreateManyInput = {
+    id?: number
+    userId: number
+    answerId: number
+    type: $Enums.VoteType
+    createdAt?: Date | string
+  }
+
+  export type AnswerVoteUpdateManyMutationInput = {
+    type?: EnumVoteTypeFieldUpdateOperationsInput | $Enums.VoteType
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnswerVoteUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    answerId?: IntFieldUpdateOperationsInput | number
+    type?: EnumVoteTypeFieldUpdateOperationsInput | $Enums.VoteType
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -8001,6 +9466,12 @@ export namespace Prisma {
     none?: NotificationWhereInput
   }
 
+  export type AnswerVoteListRelationFilter = {
+    every?: AnswerVoteWhereInput
+    some?: AnswerVoteWhereInput
+    none?: AnswerVoteWhereInput
+  }
+
   export type QuestionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -8010,6 +9481,10 @@ export namespace Prisma {
   }
 
   export type NotificationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AnswerVoteOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -8191,9 +9666,9 @@ export namespace Prisma {
     content?: SortOrder
     userId?: SortOrder
     questionId?: SortOrder
-    createdAt?: SortOrder
     upvotes?: SortOrder
     downvotes?: SortOrder
+    createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -8210,9 +9685,9 @@ export namespace Prisma {
     content?: SortOrder
     userId?: SortOrder
     questionId?: SortOrder
-    createdAt?: SortOrder
     upvotes?: SortOrder
     downvotes?: SortOrder
+    createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -8221,9 +9696,9 @@ export namespace Prisma {
     content?: SortOrder
     userId?: SortOrder
     questionId?: SortOrder
-    createdAt?: SortOrder
     upvotes?: SortOrder
     downvotes?: SortOrder
+    createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -8324,6 +9799,69 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
+  export type EnumVoteTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.VoteType | EnumVoteTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.VoteType[] | ListEnumVoteTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.VoteType[] | ListEnumVoteTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumVoteTypeFilter<$PrismaModel> | $Enums.VoteType
+  }
+
+  export type AnswerScalarRelationFilter = {
+    is?: AnswerWhereInput
+    isNot?: AnswerWhereInput
+  }
+
+  export type AnswerVoteUserIdAnswerIdCompoundUniqueInput = {
+    userId: number
+    answerId: number
+  }
+
+  export type AnswerVoteCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    answerId?: SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AnswerVoteAvgOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    answerId?: SortOrder
+  }
+
+  export type AnswerVoteMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    answerId?: SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AnswerVoteMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    answerId?: SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AnswerVoteSumOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    answerId?: SortOrder
+  }
+
+  export type EnumVoteTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.VoteType | EnumVoteTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.VoteType[] | ListEnumVoteTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.VoteType[] | ListEnumVoteTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumVoteTypeWithAggregatesFilter<$PrismaModel> | $Enums.VoteType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumVoteTypeFilter<$PrismaModel>
+    _max?: NestedEnumVoteTypeFilter<$PrismaModel>
+  }
+
   export type QuestionCreateNestedManyWithoutUserInput = {
     create?: XOR<QuestionCreateWithoutUserInput, QuestionUncheckedCreateWithoutUserInput> | QuestionCreateWithoutUserInput[] | QuestionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: QuestionCreateOrConnectWithoutUserInput | QuestionCreateOrConnectWithoutUserInput[]
@@ -8345,6 +9883,13 @@ export namespace Prisma {
     connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
   }
 
+  export type AnswerVoteCreateNestedManyWithoutUserInput = {
+    create?: XOR<AnswerVoteCreateWithoutUserInput, AnswerVoteUncheckedCreateWithoutUserInput> | AnswerVoteCreateWithoutUserInput[] | AnswerVoteUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AnswerVoteCreateOrConnectWithoutUserInput | AnswerVoteCreateOrConnectWithoutUserInput[]
+    createMany?: AnswerVoteCreateManyUserInputEnvelope
+    connect?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
+  }
+
   export type QuestionUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<QuestionCreateWithoutUserInput, QuestionUncheckedCreateWithoutUserInput> | QuestionCreateWithoutUserInput[] | QuestionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: QuestionCreateOrConnectWithoutUserInput | QuestionCreateOrConnectWithoutUserInput[]
@@ -8364,6 +9909,13 @@ export namespace Prisma {
     connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
     createMany?: NotificationCreateManyUserInputEnvelope
     connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+  }
+
+  export type AnswerVoteUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<AnswerVoteCreateWithoutUserInput, AnswerVoteUncheckedCreateWithoutUserInput> | AnswerVoteCreateWithoutUserInput[] | AnswerVoteUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AnswerVoteCreateOrConnectWithoutUserInput | AnswerVoteCreateOrConnectWithoutUserInput[]
+    createMany?: AnswerVoteCreateManyUserInputEnvelope
+    connect?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -8416,6 +9968,20 @@ export namespace Prisma {
     deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
   }
 
+  export type AnswerVoteUpdateManyWithoutUserNestedInput = {
+    create?: XOR<AnswerVoteCreateWithoutUserInput, AnswerVoteUncheckedCreateWithoutUserInput> | AnswerVoteCreateWithoutUserInput[] | AnswerVoteUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AnswerVoteCreateOrConnectWithoutUserInput | AnswerVoteCreateOrConnectWithoutUserInput[]
+    upsert?: AnswerVoteUpsertWithWhereUniqueWithoutUserInput | AnswerVoteUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: AnswerVoteCreateManyUserInputEnvelope
+    set?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
+    disconnect?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
+    delete?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
+    connect?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
+    update?: AnswerVoteUpdateWithWhereUniqueWithoutUserInput | AnswerVoteUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: AnswerVoteUpdateManyWithWhereWithoutUserInput | AnswerVoteUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: AnswerVoteScalarWhereInput | AnswerVoteScalarWhereInput[]
+  }
+
   export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
@@ -8464,6 +10030,20 @@ export namespace Prisma {
     update?: NotificationUpdateWithWhereUniqueWithoutUserInput | NotificationUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: NotificationUpdateManyWithWhereWithoutUserInput | NotificationUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+  }
+
+  export type AnswerVoteUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<AnswerVoteCreateWithoutUserInput, AnswerVoteUncheckedCreateWithoutUserInput> | AnswerVoteCreateWithoutUserInput[] | AnswerVoteUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AnswerVoteCreateOrConnectWithoutUserInput | AnswerVoteCreateOrConnectWithoutUserInput[]
+    upsert?: AnswerVoteUpsertWithWhereUniqueWithoutUserInput | AnswerVoteUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: AnswerVoteCreateManyUserInputEnvelope
+    set?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
+    disconnect?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
+    delete?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
+    connect?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
+    update?: AnswerVoteUpdateWithWhereUniqueWithoutUserInput | AnswerVoteUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: AnswerVoteUpdateManyWithWhereWithoutUserInput | AnswerVoteUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: AnswerVoteScalarWhereInput | AnswerVoteScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutQuestionsInput = {
@@ -8652,6 +10232,20 @@ export namespace Prisma {
     connect?: QuestionWhereUniqueInput
   }
 
+  export type AnswerVoteCreateNestedManyWithoutAnswerInput = {
+    create?: XOR<AnswerVoteCreateWithoutAnswerInput, AnswerVoteUncheckedCreateWithoutAnswerInput> | AnswerVoteCreateWithoutAnswerInput[] | AnswerVoteUncheckedCreateWithoutAnswerInput[]
+    connectOrCreate?: AnswerVoteCreateOrConnectWithoutAnswerInput | AnswerVoteCreateOrConnectWithoutAnswerInput[]
+    createMany?: AnswerVoteCreateManyAnswerInputEnvelope
+    connect?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
+  }
+
+  export type AnswerVoteUncheckedCreateNestedManyWithoutAnswerInput = {
+    create?: XOR<AnswerVoteCreateWithoutAnswerInput, AnswerVoteUncheckedCreateWithoutAnswerInput> | AnswerVoteCreateWithoutAnswerInput[] | AnswerVoteUncheckedCreateWithoutAnswerInput[]
+    connectOrCreate?: AnswerVoteCreateOrConnectWithoutAnswerInput | AnswerVoteCreateOrConnectWithoutAnswerInput[]
+    createMany?: AnswerVoteCreateManyAnswerInputEnvelope
+    connect?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
+  }
+
   export type UserUpdateOneRequiredWithoutAnswersNestedInput = {
     create?: XOR<UserCreateWithoutAnswersInput, UserUncheckedCreateWithoutAnswersInput>
     connectOrCreate?: UserCreateOrConnectWithoutAnswersInput
@@ -8666,6 +10260,34 @@ export namespace Prisma {
     upsert?: QuestionUpsertWithoutAnswersInput
     connect?: QuestionWhereUniqueInput
     update?: XOR<XOR<QuestionUpdateToOneWithWhereWithoutAnswersInput, QuestionUpdateWithoutAnswersInput>, QuestionUncheckedUpdateWithoutAnswersInput>
+  }
+
+  export type AnswerVoteUpdateManyWithoutAnswerNestedInput = {
+    create?: XOR<AnswerVoteCreateWithoutAnswerInput, AnswerVoteUncheckedCreateWithoutAnswerInput> | AnswerVoteCreateWithoutAnswerInput[] | AnswerVoteUncheckedCreateWithoutAnswerInput[]
+    connectOrCreate?: AnswerVoteCreateOrConnectWithoutAnswerInput | AnswerVoteCreateOrConnectWithoutAnswerInput[]
+    upsert?: AnswerVoteUpsertWithWhereUniqueWithoutAnswerInput | AnswerVoteUpsertWithWhereUniqueWithoutAnswerInput[]
+    createMany?: AnswerVoteCreateManyAnswerInputEnvelope
+    set?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
+    disconnect?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
+    delete?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
+    connect?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
+    update?: AnswerVoteUpdateWithWhereUniqueWithoutAnswerInput | AnswerVoteUpdateWithWhereUniqueWithoutAnswerInput[]
+    updateMany?: AnswerVoteUpdateManyWithWhereWithoutAnswerInput | AnswerVoteUpdateManyWithWhereWithoutAnswerInput[]
+    deleteMany?: AnswerVoteScalarWhereInput | AnswerVoteScalarWhereInput[]
+  }
+
+  export type AnswerVoteUncheckedUpdateManyWithoutAnswerNestedInput = {
+    create?: XOR<AnswerVoteCreateWithoutAnswerInput, AnswerVoteUncheckedCreateWithoutAnswerInput> | AnswerVoteCreateWithoutAnswerInput[] | AnswerVoteUncheckedCreateWithoutAnswerInput[]
+    connectOrCreate?: AnswerVoteCreateOrConnectWithoutAnswerInput | AnswerVoteCreateOrConnectWithoutAnswerInput[]
+    upsert?: AnswerVoteUpsertWithWhereUniqueWithoutAnswerInput | AnswerVoteUpsertWithWhereUniqueWithoutAnswerInput[]
+    createMany?: AnswerVoteCreateManyAnswerInputEnvelope
+    set?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
+    disconnect?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
+    delete?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
+    connect?: AnswerVoteWhereUniqueInput | AnswerVoteWhereUniqueInput[]
+    update?: AnswerVoteUpdateWithWhereUniqueWithoutAnswerInput | AnswerVoteUpdateWithWhereUniqueWithoutAnswerInput[]
+    updateMany?: AnswerVoteUpdateManyWithWhereWithoutAnswerInput | AnswerVoteUpdateManyWithWhereWithoutAnswerInput[]
+    deleteMany?: AnswerVoteScalarWhereInput | AnswerVoteScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutNotificationsInput = {
@@ -8708,6 +10330,38 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type UserCreateNestedOneWithoutAnswerVotesInput = {
+    create?: XOR<UserCreateWithoutAnswerVotesInput, UserUncheckedCreateWithoutAnswerVotesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAnswerVotesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type AnswerCreateNestedOneWithoutVotesInput = {
+    create?: XOR<AnswerCreateWithoutVotesInput, AnswerUncheckedCreateWithoutVotesInput>
+    connectOrCreate?: AnswerCreateOrConnectWithoutVotesInput
+    connect?: AnswerWhereUniqueInput
+  }
+
+  export type EnumVoteTypeFieldUpdateOperationsInput = {
+    set?: $Enums.VoteType
+  }
+
+  export type UserUpdateOneRequiredWithoutAnswerVotesNestedInput = {
+    create?: XOR<UserCreateWithoutAnswerVotesInput, UserUncheckedCreateWithoutAnswerVotesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAnswerVotesInput
+    upsert?: UserUpsertWithoutAnswerVotesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAnswerVotesInput, UserUpdateWithoutAnswerVotesInput>, UserUncheckedUpdateWithoutAnswerVotesInput>
+  }
+
+  export type AnswerUpdateOneRequiredWithoutVotesNestedInput = {
+    create?: XOR<AnswerCreateWithoutVotesInput, AnswerUncheckedCreateWithoutVotesInput>
+    connectOrCreate?: AnswerCreateOrConnectWithoutVotesInput
+    upsert?: AnswerUpsertWithoutVotesInput
+    connect?: AnswerWhereUniqueInput
+    update?: XOR<XOR<AnswerUpdateToOneWithWhereWithoutVotesInput, AnswerUpdateWithoutVotesInput>, AnswerUncheckedUpdateWithoutVotesInput>
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -8855,6 +10509,23 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
+  export type NestedEnumVoteTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.VoteType | EnumVoteTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.VoteType[] | ListEnumVoteTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.VoteType[] | ListEnumVoteTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumVoteTypeFilter<$PrismaModel> | $Enums.VoteType
+  }
+
+  export type NestedEnumVoteTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.VoteType | EnumVoteTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.VoteType[] | ListEnumVoteTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.VoteType[] | ListEnumVoteTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumVoteTypeWithAggregatesFilter<$PrismaModel> | $Enums.VoteType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumVoteTypeFilter<$PrismaModel>
+    _max?: NestedEnumVoteTypeFilter<$PrismaModel>
+  }
+
   export type QuestionCreateWithoutUserInput = {
     title: string
     content: string
@@ -8892,21 +10563,23 @@ export namespace Prisma {
 
   export type AnswerCreateWithoutUserInput = {
     content: string
-    createdAt?: Date | string
     upvotes?: number
     downvotes?: number
+    createdAt?: Date | string
     updatedAt?: Date | string
     question: QuestionCreateNestedOneWithoutAnswersInput
+    votes?: AnswerVoteCreateNestedManyWithoutAnswerInput
   }
 
   export type AnswerUncheckedCreateWithoutUserInput = {
     id?: number
     content: string
     questionId: number
-    createdAt?: Date | string
     upvotes?: number
     downvotes?: number
+    createdAt?: Date | string
     updatedAt?: Date | string
+    votes?: AnswerVoteUncheckedCreateNestedManyWithoutAnswerInput
   }
 
   export type AnswerCreateOrConnectWithoutUserInput = {
@@ -8941,6 +10614,29 @@ export namespace Prisma {
 
   export type NotificationCreateManyUserInputEnvelope = {
     data: NotificationCreateManyUserInput | NotificationCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AnswerVoteCreateWithoutUserInput = {
+    type: $Enums.VoteType
+    createdAt?: Date | string
+    answer: AnswerCreateNestedOneWithoutVotesInput
+  }
+
+  export type AnswerVoteUncheckedCreateWithoutUserInput = {
+    id?: number
+    answerId: number
+    type: $Enums.VoteType
+    createdAt?: Date | string
+  }
+
+  export type AnswerVoteCreateOrConnectWithoutUserInput = {
+    where: AnswerVoteWhereUniqueInput
+    create: XOR<AnswerVoteCreateWithoutUserInput, AnswerVoteUncheckedCreateWithoutUserInput>
+  }
+
+  export type AnswerVoteCreateManyUserInputEnvelope = {
+    data: AnswerVoteCreateManyUserInput | AnswerVoteCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -8998,9 +10694,9 @@ export namespace Prisma {
     content?: StringFilter<"Answer"> | string
     userId?: IntFilter<"Answer"> | number
     questionId?: IntFilter<"Answer"> | number
-    createdAt?: DateTimeFilter<"Answer"> | Date | string
     upvotes?: IntFilter<"Answer"> | number
     downvotes?: IntFilter<"Answer"> | number
+    createdAt?: DateTimeFilter<"Answer"> | Date | string
     updatedAt?: DateTimeFilter<"Answer"> | Date | string
   }
 
@@ -9032,6 +10728,33 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Notification"> | Date | string
   }
 
+  export type AnswerVoteUpsertWithWhereUniqueWithoutUserInput = {
+    where: AnswerVoteWhereUniqueInput
+    update: XOR<AnswerVoteUpdateWithoutUserInput, AnswerVoteUncheckedUpdateWithoutUserInput>
+    create: XOR<AnswerVoteCreateWithoutUserInput, AnswerVoteUncheckedCreateWithoutUserInput>
+  }
+
+  export type AnswerVoteUpdateWithWhereUniqueWithoutUserInput = {
+    where: AnswerVoteWhereUniqueInput
+    data: XOR<AnswerVoteUpdateWithoutUserInput, AnswerVoteUncheckedUpdateWithoutUserInput>
+  }
+
+  export type AnswerVoteUpdateManyWithWhereWithoutUserInput = {
+    where: AnswerVoteScalarWhereInput
+    data: XOR<AnswerVoteUpdateManyMutationInput, AnswerVoteUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type AnswerVoteScalarWhereInput = {
+    AND?: AnswerVoteScalarWhereInput | AnswerVoteScalarWhereInput[]
+    OR?: AnswerVoteScalarWhereInput[]
+    NOT?: AnswerVoteScalarWhereInput | AnswerVoteScalarWhereInput[]
+    id?: IntFilter<"AnswerVote"> | number
+    userId?: IntFilter<"AnswerVote"> | number
+    answerId?: IntFilter<"AnswerVote"> | number
+    type?: EnumVoteTypeFilter<"AnswerVote"> | $Enums.VoteType
+    createdAt?: DateTimeFilter<"AnswerVote"> | Date | string
+  }
+
   export type UserCreateWithoutQuestionsInput = {
     username: string
     email: string
@@ -9040,6 +10763,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     answers?: AnswerCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    answerVotes?: AnswerVoteCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutQuestionsInput = {
@@ -9051,6 +10775,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     answers?: AnswerUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    answerVotes?: AnswerVoteUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutQuestionsInput = {
@@ -9060,21 +10785,23 @@ export namespace Prisma {
 
   export type AnswerCreateWithoutQuestionInput = {
     content: string
-    createdAt?: Date | string
     upvotes?: number
     downvotes?: number
+    createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutAnswersInput
+    votes?: AnswerVoteCreateNestedManyWithoutAnswerInput
   }
 
   export type AnswerUncheckedCreateWithoutQuestionInput = {
     id?: number
     content: string
     userId: number
-    createdAt?: Date | string
     upvotes?: number
     downvotes?: number
+    createdAt?: Date | string
     updatedAt?: Date | string
+    votes?: AnswerVoteUncheckedCreateNestedManyWithoutAnswerInput
   }
 
   export type AnswerCreateOrConnectWithoutQuestionInput = {
@@ -9145,6 +10872,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     answers?: AnswerUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    answerVotes?: AnswerVoteUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutQuestionsInput = {
@@ -9156,6 +10884,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     answers?: AnswerUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    answerVotes?: AnswerVoteUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type AnswerUpsertWithWhereUniqueWithoutQuestionInput = {
@@ -9268,6 +10997,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     questions?: QuestionCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    answerVotes?: AnswerVoteCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAnswersInput = {
@@ -9279,6 +11009,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     questions?: QuestionUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    answerVotes?: AnswerVoteUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAnswersInput = {
@@ -9316,6 +11047,29 @@ export namespace Prisma {
     create: XOR<QuestionCreateWithoutAnswersInput, QuestionUncheckedCreateWithoutAnswersInput>
   }
 
+  export type AnswerVoteCreateWithoutAnswerInput = {
+    type: $Enums.VoteType
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutAnswerVotesInput
+  }
+
+  export type AnswerVoteUncheckedCreateWithoutAnswerInput = {
+    id?: number
+    userId: number
+    type: $Enums.VoteType
+    createdAt?: Date | string
+  }
+
+  export type AnswerVoteCreateOrConnectWithoutAnswerInput = {
+    where: AnswerVoteWhereUniqueInput
+    create: XOR<AnswerVoteCreateWithoutAnswerInput, AnswerVoteUncheckedCreateWithoutAnswerInput>
+  }
+
+  export type AnswerVoteCreateManyAnswerInputEnvelope = {
+    data: AnswerVoteCreateManyAnswerInput | AnswerVoteCreateManyAnswerInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithoutAnswersInput = {
     update: XOR<UserUpdateWithoutAnswersInput, UserUncheckedUpdateWithoutAnswersInput>
     create: XOR<UserCreateWithoutAnswersInput, UserUncheckedCreateWithoutAnswersInput>
@@ -9335,6 +11089,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     questions?: QuestionUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    answerVotes?: AnswerVoteUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAnswersInput = {
@@ -9346,6 +11101,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     questions?: QuestionUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    answerVotes?: AnswerVoteUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type QuestionUpsertWithoutAnswersInput = {
@@ -9384,6 +11140,22 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutQuestionNestedInput
   }
 
+  export type AnswerVoteUpsertWithWhereUniqueWithoutAnswerInput = {
+    where: AnswerVoteWhereUniqueInput
+    update: XOR<AnswerVoteUpdateWithoutAnswerInput, AnswerVoteUncheckedUpdateWithoutAnswerInput>
+    create: XOR<AnswerVoteCreateWithoutAnswerInput, AnswerVoteUncheckedCreateWithoutAnswerInput>
+  }
+
+  export type AnswerVoteUpdateWithWhereUniqueWithoutAnswerInput = {
+    where: AnswerVoteWhereUniqueInput
+    data: XOR<AnswerVoteUpdateWithoutAnswerInput, AnswerVoteUncheckedUpdateWithoutAnswerInput>
+  }
+
+  export type AnswerVoteUpdateManyWithWhereWithoutAnswerInput = {
+    where: AnswerVoteScalarWhereInput
+    data: XOR<AnswerVoteUpdateManyMutationInput, AnswerVoteUncheckedUpdateManyWithoutAnswerInput>
+  }
+
   export type UserCreateWithoutNotificationsInput = {
     username: string
     email: string
@@ -9392,6 +11164,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     questions?: QuestionCreateNestedManyWithoutUserInput
     answers?: AnswerCreateNestedManyWithoutUserInput
+    answerVotes?: AnswerVoteCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -9403,6 +11176,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     questions?: QuestionUncheckedCreateNestedManyWithoutUserInput
     answers?: AnswerUncheckedCreateNestedManyWithoutUserInput
+    answerVotes?: AnswerVoteUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -9459,6 +11233,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     questions?: QuestionUpdateManyWithoutUserNestedInput
     answers?: AnswerUpdateManyWithoutUserNestedInput
+    answerVotes?: AnswerVoteUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -9470,6 +11245,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     questions?: QuestionUncheckedUpdateManyWithoutUserNestedInput
     answers?: AnswerUncheckedUpdateManyWithoutUserNestedInput
+    answerVotes?: AnswerVoteUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type QuestionUpsertWithoutNotificationsInput = {
@@ -9508,6 +11284,126 @@ export namespace Prisma {
     tags?: TagUncheckedUpdateManyWithoutQuestionsNestedInput
   }
 
+  export type UserCreateWithoutAnswerVotesInput = {
+    username: string
+    email: string
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    questions?: QuestionCreateNestedManyWithoutUserInput
+    answers?: AnswerCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAnswerVotesInput = {
+    id?: number
+    username: string
+    email: string
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    questions?: QuestionUncheckedCreateNestedManyWithoutUserInput
+    answers?: AnswerUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAnswerVotesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAnswerVotesInput, UserUncheckedCreateWithoutAnswerVotesInput>
+  }
+
+  export type AnswerCreateWithoutVotesInput = {
+    content: string
+    upvotes?: number
+    downvotes?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutAnswersInput
+    question: QuestionCreateNestedOneWithoutAnswersInput
+  }
+
+  export type AnswerUncheckedCreateWithoutVotesInput = {
+    id?: number
+    content: string
+    userId: number
+    questionId: number
+    upvotes?: number
+    downvotes?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AnswerCreateOrConnectWithoutVotesInput = {
+    where: AnswerWhereUniqueInput
+    create: XOR<AnswerCreateWithoutVotesInput, AnswerUncheckedCreateWithoutVotesInput>
+  }
+
+  export type UserUpsertWithoutAnswerVotesInput = {
+    update: XOR<UserUpdateWithoutAnswerVotesInput, UserUncheckedUpdateWithoutAnswerVotesInput>
+    create: XOR<UserCreateWithoutAnswerVotesInput, UserUncheckedCreateWithoutAnswerVotesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAnswerVotesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAnswerVotesInput, UserUncheckedUpdateWithoutAnswerVotesInput>
+  }
+
+  export type UserUpdateWithoutAnswerVotesInput = {
+    username?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    questions?: QuestionUpdateManyWithoutUserNestedInput
+    answers?: AnswerUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAnswerVotesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    questions?: QuestionUncheckedUpdateManyWithoutUserNestedInput
+    answers?: AnswerUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type AnswerUpsertWithoutVotesInput = {
+    update: XOR<AnswerUpdateWithoutVotesInput, AnswerUncheckedUpdateWithoutVotesInput>
+    create: XOR<AnswerCreateWithoutVotesInput, AnswerUncheckedCreateWithoutVotesInput>
+    where?: AnswerWhereInput
+  }
+
+  export type AnswerUpdateToOneWithWhereWithoutVotesInput = {
+    where?: AnswerWhereInput
+    data: XOR<AnswerUpdateWithoutVotesInput, AnswerUncheckedUpdateWithoutVotesInput>
+  }
+
+  export type AnswerUpdateWithoutVotesInput = {
+    content?: StringFieldUpdateOperationsInput | string
+    upvotes?: IntFieldUpdateOperationsInput | number
+    downvotes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAnswersNestedInput
+    question?: QuestionUpdateOneRequiredWithoutAnswersNestedInput
+  }
+
+  export type AnswerUncheckedUpdateWithoutVotesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    content?: StringFieldUpdateOperationsInput | string
+    userId?: IntFieldUpdateOperationsInput | number
+    questionId?: IntFieldUpdateOperationsInput | number
+    upvotes?: IntFieldUpdateOperationsInput | number
+    downvotes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type QuestionCreateManyUserInput = {
     id?: number
     title: string
@@ -9522,9 +11418,9 @@ export namespace Prisma {
     id?: number
     content: string
     questionId: number
-    createdAt?: Date | string
     upvotes?: number
     downvotes?: number
+    createdAt?: Date | string
     updatedAt?: Date | string
   }
 
@@ -9533,6 +11429,13 @@ export namespace Prisma {
     message: string
     questionId?: number | null
     isRead?: boolean
+    createdAt?: Date | string
+  }
+
+  export type AnswerVoteCreateManyUserInput = {
+    id?: number
+    answerId: number
+    type: $Enums.VoteType
     createdAt?: Date | string
   }
 
@@ -9573,30 +11476,32 @@ export namespace Prisma {
 
   export type AnswerUpdateWithoutUserInput = {
     content?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     upvotes?: IntFieldUpdateOperationsInput | number
     downvotes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     question?: QuestionUpdateOneRequiredWithoutAnswersNestedInput
+    votes?: AnswerVoteUpdateManyWithoutAnswerNestedInput
   }
 
   export type AnswerUncheckedUpdateWithoutUserInput = {
     id?: IntFieldUpdateOperationsInput | number
     content?: StringFieldUpdateOperationsInput | string
     questionId?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     upvotes?: IntFieldUpdateOperationsInput | number
     downvotes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    votes?: AnswerVoteUncheckedUpdateManyWithoutAnswerNestedInput
   }
 
   export type AnswerUncheckedUpdateManyWithoutUserInput = {
     id?: IntFieldUpdateOperationsInput | number
     content?: StringFieldUpdateOperationsInput | string
     questionId?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     upvotes?: IntFieldUpdateOperationsInput | number
     downvotes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -9623,13 +11528,33 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AnswerVoteUpdateWithoutUserInput = {
+    type?: EnumVoteTypeFieldUpdateOperationsInput | $Enums.VoteType
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    answer?: AnswerUpdateOneRequiredWithoutVotesNestedInput
+  }
+
+  export type AnswerVoteUncheckedUpdateWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    answerId?: IntFieldUpdateOperationsInput | number
+    type?: EnumVoteTypeFieldUpdateOperationsInput | $Enums.VoteType
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnswerVoteUncheckedUpdateManyWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    answerId?: IntFieldUpdateOperationsInput | number
+    type?: EnumVoteTypeFieldUpdateOperationsInput | $Enums.VoteType
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type AnswerCreateManyQuestionInput = {
     id?: number
     content: string
     userId: number
-    createdAt?: Date | string
     upvotes?: number
     downvotes?: number
+    createdAt?: Date | string
     updatedAt?: Date | string
   }
 
@@ -9643,30 +11568,32 @@ export namespace Prisma {
 
   export type AnswerUpdateWithoutQuestionInput = {
     content?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     upvotes?: IntFieldUpdateOperationsInput | number
     downvotes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutAnswersNestedInput
+    votes?: AnswerVoteUpdateManyWithoutAnswerNestedInput
   }
 
   export type AnswerUncheckedUpdateWithoutQuestionInput = {
     id?: IntFieldUpdateOperationsInput | number
     content?: StringFieldUpdateOperationsInput | string
     userId?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     upvotes?: IntFieldUpdateOperationsInput | number
     downvotes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    votes?: AnswerVoteUncheckedUpdateManyWithoutAnswerNestedInput
   }
 
   export type AnswerUncheckedUpdateManyWithoutQuestionInput = {
     id?: IntFieldUpdateOperationsInput | number
     content?: StringFieldUpdateOperationsInput | string
     userId?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     upvotes?: IntFieldUpdateOperationsInput | number
     downvotes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -9741,6 +11668,33 @@ export namespace Prisma {
     userId?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnswerVoteCreateManyAnswerInput = {
+    id?: number
+    userId: number
+    type: $Enums.VoteType
+    createdAt?: Date | string
+  }
+
+  export type AnswerVoteUpdateWithoutAnswerInput = {
+    type?: EnumVoteTypeFieldUpdateOperationsInput | $Enums.VoteType
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAnswerVotesNestedInput
+  }
+
+  export type AnswerVoteUncheckedUpdateWithoutAnswerInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    type?: EnumVoteTypeFieldUpdateOperationsInput | $Enums.VoteType
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnswerVoteUncheckedUpdateManyWithoutAnswerInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    type?: EnumVoteTypeFieldUpdateOperationsInput | $Enums.VoteType
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 
