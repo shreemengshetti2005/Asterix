@@ -253,3 +253,85 @@ export const downvoteAnswer = async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Server error." });
   }
 };
+
+export const read_notification = async (req: Request, res: Response) => {
+  try {
+    const notificationid = parseInt(req.body.notificationid);
+
+    if (isNaN(notificationid)) {
+      return res.status(400).json({ error: "Invalid notification ID" });
+    }
+
+    const updatedNotification = await client.notification.update({
+      where: { id: notificationid },
+      data: { isRead: true },
+    });
+
+    return res.json({ message: "Notification marked as read", notification: updatedNotification });
+  } catch (err) {
+    console.error("Error marking notification as read:", err);
+    return res.status(500).json({ error: "Failed to update notification" });
+  }
+};
+export const notification = async (req: Request, res: Response) => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const userId = parseInt(req.userId);
+
+    const [notifications, count] = await Promise.all([
+      client.notification.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        include: {
+          question: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
+        },
+      }),
+      client.notification.count({
+        where: { userId },
+      }),
+    ]);
+
+    return res.json({ count, notifications });
+  } catch (err) {
+    console.error("Error fetching notifications:", err);
+    return res.status(500).json({ error: "Failed to fetch notifications" });
+  }
+};
+export const admin_delete = async (req: Request, res: Response) => {
+  try {
+    if (!req.userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const userId = parseInt(req.userId);
+    const questionId = parseInt(req.body.questionid);
+
+    const user = await client.user.findUnique({
+      where: { id: userId },
+      select: { isAdmin: true },
+    });
+
+    if (!user?.isAdmin) {
+      return res.status(403).json({ error: "Access denied. Admins only." });
+    }
+
+    await client.answer.deleteMany({
+      where: { questionId }
+    });
+
+    await client.question.delete({
+      where: { id: questionId }
+    });
+
+    return res.json({ message: "Question deleted successfully." });
+  } catch (err) {
+    console.error("Delete Error:", err);
+    return res.status(500).json({ error: "Something went wrong." });
+  }
+};

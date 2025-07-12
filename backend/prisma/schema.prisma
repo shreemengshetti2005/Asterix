@@ -17,6 +17,7 @@ model User {
   answers        Answer[]        // One user can write many answers
   notifications  Notification[]  // One user can receive many notifications
   answerVotes    AnswerVote[]    // ➕ User's votes on answers
+  isAdmin        Boolean        @default(false)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 }

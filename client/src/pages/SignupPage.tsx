@@ -4,19 +4,20 @@ import { Mail, Lock, User, Code2, CheckCircle } from "lucide-react";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
 import { useAuth } from "../context/authContext";
+import {signup }from '../app.ts'
 
 export const SignupPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
-  const { signup, isLoading } = useAuth();
+  // const { signup, isLoading } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
+    
     if (!email || !password || !username) {
       setError("Please fill in all fields");
       return;
@@ -26,13 +27,14 @@ export const SignupPage: React.FC = () => {
       setError("Password must be at least 6 characters");
       return;
     }
-
+    
     if (username.length < 3) {
       setError("Username must be at least 3 characters");
       return;
     }
-
-    const success = await signup(email, password, username);
+    
+    const success=await signup(email,password,username);
+    // const success = await signup(email, password, username);
     if (success) {
       navigate("/");
     } else {
@@ -160,7 +162,7 @@ export const SignupPage: React.FC = () => {
               type="submit"
               variant="secondary"
               size="lg"
-              isLoading={isLoading}
+              // isLoading={isLoading}
             >
               Create Account
             </Button>

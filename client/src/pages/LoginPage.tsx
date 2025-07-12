@@ -4,18 +4,20 @@ import { Mail, Lock, Code2, Users, Trophy, MessageSquare } from "lucide-react";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
 import { useAuth } from "../context/authContext";
+import { login } from "@/app";
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { login, isLoading } = useAuth();
+  
+  // const { login, isLoading } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
+    
     if (!email || !password) {
       setError("Please fill in all fields");
       return;
